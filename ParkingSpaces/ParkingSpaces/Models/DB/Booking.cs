@@ -4,10 +4,9 @@
     {
         public int Id { get; set; }
 
-        public ParkSpace ParkSpace { get; set; }
         public int ParkSpaceId { get; set; }
+        public ParkSpace ParkSpace { get; set; }
 
-        // represent duration of time
         public TimeSpan Duration{ get; set; }
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
