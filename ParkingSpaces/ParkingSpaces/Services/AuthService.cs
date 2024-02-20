@@ -25,11 +25,14 @@ namespace ParkingSpaces.Services
 
         public int GetUserIdFromToken(string token)
         {
-            byte[] plainTextBytes = Convert.FromBase64String(token);
-            string[] credential = Convert.ToString(plainTextBytes).Split(':');
+            string decodedAuthenticationToken = Encoding.UTF8.GetString(
+                    Convert.FromBase64String(token));
+
+            //Convert the string into an string array
+            string[] usernamePasswordArray = decodedAuthenticationToken.Split(':');
 
             Expression<Func<User, bool>> expression = 
-                user => user.Username == credential[0] && user.Password == credential[1];
+                user => user.Username == usernamePasswordArray[0] && user.Password == usernamePasswordArray[1];
 
             User user = _userRepository.FindByCriteria(expression);
 
