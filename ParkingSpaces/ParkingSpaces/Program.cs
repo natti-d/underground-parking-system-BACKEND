@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using ParkingSpaces;
+using ParkingSpaces.Authentication.Basic;
 using ParkingSpaces.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ParkingSpacesDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
 ));
+
+// authentication
+builder.Services.AddAuthentication()
+    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>(
+        BasicAuthenticationDefaults.AuthenticationScheme, null
+    );
 
 // all services
 var dependencies = new Dependencies();

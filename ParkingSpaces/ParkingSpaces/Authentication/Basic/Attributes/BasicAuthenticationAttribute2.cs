@@ -21,11 +21,10 @@ namespace ParkingSpaces.Attributes
 
         private const string Realm = "My Realm";
 
-        // to save the current state???
-        public int CurrentId { get; set; }
+        //// to save the current state???
+        //public int CurrentId { get; set; }
 
        
-
         public override void OnAuthorization(HttpActionContext actionContext)
         {
             //If the Authorization header is empty or null
@@ -39,6 +38,7 @@ namespace ParkingSpaces.Attributes
                 // to the response which indicates that it require basic authentication
                 if (actionContext.Response.StatusCode == HttpStatusCode.Unauthorized)
                 {
+                    // make the reponse, to be visible that we use basic authentication
                     actionContext.Response.Headers.Add("WWW-Authenticate",
                         string.Format("Basic realm=\"{0}\"", Realm));
                 }
@@ -57,9 +57,9 @@ namespace ParkingSpaces.Attributes
 
                 try
                 {
-                    _authService.GetUserIdFromToken(authenticationToken);
+                    int id = _authService.GetUserIdFromToken(authenticationToken);
 
-                    var identity = new GenericIdentity(username);
+                    var identity = new GenericIdentity(id);
 
                     IPrincipal principal = new GenericPrincipal(identity, null);
                     Thread.CurrentPrincipal = principal;
