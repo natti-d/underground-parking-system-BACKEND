@@ -12,8 +12,8 @@ using ParkingSpaces;
 namespace ParkingSpaces.Migrations
 {
     [DbContext(typeof(ParkingSpacesDbContext))]
-    [Migration("20240220071021_removingAutoIncrementForParkSpaces")]
-    partial class removingAutoIncrementForParkSpaces
+    [Migration("20240220090702_init")]
+    partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -44,16 +44,31 @@ namespace ParkingSpaces.Migrations
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("ParkSpaceId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Bookings");
                 });
 
             modelBuilder.Entity("ParkingSpaces.Models.DB.ParkSpace", b =>
                 {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
 
                     b.ToTable("ParkSpaces");
                 });
@@ -93,6 +108,30 @@ namespace ParkingSpaces.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("ParkingSpaces.Models.DB.Booking", b =>
+                {
+                    b.HasOne("ParkingSpaces.Models.DB.ParkSpace", "ParkSpace")
+                        .WithMany()
+                        .HasForeignKey("ParkSpaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ParkingSpaces.Models.DB.User", "User")
+                        .WithMany("Bookings")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ParkSpace");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ParkingSpaces.Models.DB.User", b =>
+                {
+                    b.Navigation("Bookings");
                 });
 #pragma warning restore 612, 618
         }

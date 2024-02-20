@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ParkingSpaces.Models.DB;
 using ParkingSpaces.Models.Request;
+using ParkingSpaces.Services;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -11,10 +12,15 @@ namespace ParkingSpaces.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
+        private readonly IAuthService _authService;
         private readonly ParkingSpacesDbContext _dbContext;
 
-        public UserController(ParkingSpacesDbContext dbContext, IConfiguration configuration)
+        public UserController(
+            ParkingSpacesDbContext dbContext,
+            IAuthService authService,
+            IConfiguration configuration)
         {
+            _authService = authService;
             _dbContext = dbContext ?? throw new NullReferenceException();
         }
         [HttpPost]
@@ -31,10 +37,7 @@ namespace ParkingSpaces.Controllers
                 return NotFound();
             }
 
-            string credentialString = user.Username.ToString() + user.Password.ToString();
-            byte[] plainTextBytes = Encoding.UTF8.GetBytes(credentialString);
-
-            string token = Convert.ToBase64String(plainTextBytes);
+            string token = _authService.CreateToken(user.Username, user.Password);
             return Ok(token);
         }
 

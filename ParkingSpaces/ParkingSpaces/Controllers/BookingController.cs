@@ -8,11 +8,13 @@ namespace ParkingSpaces.Controllers
     [ApiController]
     public class BookingController : ControllerBase
     {
-        private readonly IBookingService _accountService;
+        private readonly IBookingService _bookingService;
 
-        public BookingController(IBookingService accountService)
+        public BookingController(IBookingService bookingService)
         {
-            _accountService = accountService;
+            _bookingService = bookingService;
         }
+
+
     }
 }

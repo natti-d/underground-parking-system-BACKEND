@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ParkingSpaces.Migrations
 {
-    public partial class Create : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -30,6 +30,7 @@ namespace ParkingSpaces.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Plate = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -45,6 +46,7 @@ namespace ParkingSpaces.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
                     ParkSpaceId = table.Column<int>(type: "int", nullable: false),
                     Duration = table.Column<TimeSpan>(type: "time", nullable: false),
                     StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -59,12 +61,23 @@ namespace ParkingSpaces.Migrations
                         principalTable: "ParkSpaces",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Bookings_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Bookings_ParkSpaceId",
                 table: "Bookings",
                 column: "ParkSpaceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Bookings_UserId",
+                table: "Bookings",
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -73,10 +86,10 @@ namespace ParkingSpaces.Migrations
                 name: "Bookings");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "ParkSpaces");
 
             migrationBuilder.DropTable(
-                name: "ParkSpaces");
+                name: "Users");
         }
     }
 }
