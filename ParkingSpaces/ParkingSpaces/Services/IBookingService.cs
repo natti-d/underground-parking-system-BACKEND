@@ -7,7 +7,7 @@ namespace ParkingSpaces.Services
     {
         // async
 
-        public Task CreateBooking(BookingRequest booking);
+        public Task CreateBooking(BookingRequest booking, string username);
 
         public Task DeleteBooking(int id);
 

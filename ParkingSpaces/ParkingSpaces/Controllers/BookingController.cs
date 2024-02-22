@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using ParkingSpaces.RequestObjects;
 using ParkingSpaces.Services;
+using System.Security.Claims;
 
 namespace ParkingSpaces.Controllers
 {
     [Route("api/[controller]")]
-    // routing?
+    [Authorize] // require to be authorized
     [ApiController]
     public class BookingController : ControllerBase
     {
@@ -15,8 +18,16 @@ namespace ParkingSpaces.Controllers
             _bookingService = bookingService;
         }
 
+        [HttpPost]
+        public virtual async Task<ActionResult> CreateBooking(BookingRequest bookingRequest)
+        {
+            string username = User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value;
 
-
+            await _bookingService.CreateBooking(bookingRequest, username);
+            return Ok();
+        }
 
     }
 }

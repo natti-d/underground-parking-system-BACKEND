@@ -1,34 +1,39 @@
-﻿using ParkingSpaces.Models.DB;
+﻿
+using ParkingSpaces.Models.DB;
 using ParkingSpaces.Repository.Repository_Interfaces;
 using ParkingSpaces.Repository.Repository_Models;
 using ParkingSpaces.RequestObjects;
 using System.Linq.Expressions;
+using System.Security.Claims;
 
 namespace ParkingSpaces.Services
 {
     public class BookingService : IBookingService
     {
         private readonly IBookingRepository _bookingRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IAuthService _authService;
 
-        public BookingService(IBookingRepository bookingRepository,
-            IAuthService authService)
+        public BookingService(
+            IBookingRepository bookingRepository,
+            IAuthService authService,
+            IUserRepository userRepository)
         {
             _authService = authService;
+            _userRepository = userRepository;
             _bookingRepository = bookingRepository;
         }
 
-        public virtual async Task CreateBooking(BookingRequest bookingRequest)
+        public virtual async Task CreateBooking(BookingRequest bookingRequest, string username)
         {
-            // expression
+            Expression<Func<User, bool>> findUserExpression = user => user.Username == username;
 
-            // get the current user
-            //string token = Request
+            User currUser = _userRepository.FindByCriteria(findUserExpression);
 
-            // using basic authentication
-            //string token = Request.Headers.Authorization.Parameter;
-            _authService.GetUserIdFromToken();
-
+            if (currUser == null)
+            {
+                throw new Exception();
+            }
 
             Expression<Func<Booking, bool>> expression = booking => booking.ParkSpace.Id == bookingRequest.ParkSpaceId
                 && (booking.StartTime >= bookingRequest.StartTime && booking.EndTime <= bookingRequest.StartTime);

@@ -23,6 +23,7 @@ namespace ParkingSpaces.Services
             return token;
         }
 
+        // what is the best way to handle this?
         public int GetUserIdFromToken(string token)
         {
             string decodedAuthenticationToken = Encoding.UTF8.GetString(
