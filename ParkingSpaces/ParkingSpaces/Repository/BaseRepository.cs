@@ -17,12 +17,12 @@ namespace ParkingSpaces.Repository
         }
 
         // filter by criteria
-        public virtual IQueryable<T> FilterByCriteria(Expression<Func<T, bool>> expression)
+        public virtual IQueryable<T> FindByCriteria(Expression<Func<T, bool>> expression)
             => RepositoryContext.Set<T>().Where(expression);
 
         // more good for quiring data
-        public virtual T FindByCriteria(Expression<Func<T, bool>> expression)
-            => RepositoryContext.Set<T>().Find(expression);
+            public virtual T FindById(int id)
+                => RepositoryContext.Set<T>().Find(id);
 
         public virtual IQueryable<T> FindAll() => RepositoryContext.Set<T>();
 

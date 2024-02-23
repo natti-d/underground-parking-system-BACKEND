@@ -1,8 +1,8 @@
 ﻿
 using ParkingSpaces.Models.DB;
+using ParkingSpaces.Models.Request;
 using ParkingSpaces.Repository.Repository_Interfaces;
 using ParkingSpaces.Repository.Repository_Models;
-using ParkingSpaces.RequestObjects;
 using System.Linq.Expressions;
 using System.Security.Claims;
 
@@ -12,37 +12,50 @@ namespace ParkingSpaces.Services
     {
         private readonly IBookingRepository _bookingRepository;
         private readonly IUserRepository _userRepository;
-        private readonly IAuthService _authService;
 
         public BookingService(
             IBookingRepository bookingRepository,
             IAuthService authService,
             IUserRepository userRepository)
         {
-            _authService = authService;
             _userRepository = userRepository;
             _bookingRepository = bookingRepository;
         }
 
-        public virtual async Task CreateBooking(BookingRequest bookingRequest, string username)
+        public virtual async Task CreateBooking(BookingCreateBookingRequest bookingRequest, string username)
         {
             Expression<Func<User, bool>> findUserExpression = user => user.Username == username;
 
-            User currUser = _userRepository.FindByCriteria(findUserExpression);
+            User currUser = _userRepository.FindByCriteria(findUserExpression)
+                .FirstOrDefault();
 
             if (currUser == null)
             {
-                throw new Exception();
+                throw new Exception("Incorrect credentials!");
+            }
+
+            // validate the parkspace id (static data)
+            if (bookingRequest.ParkSpaceId < 1 || bookingRequest.ParkSpaceId > 16)
+            {
+                throw new Exception("Incorrect park space!");
+            }
+
+            // validate the startTime is valid time
+            if(bookingRequest.StartTime < DateTime.UtcNow)
+            {
+                throw new Exception("Incorrect start date!");
             }
 
             Expression<Func<Booking, bool>> expression = booking => booking.ParkSpace.Id == bookingRequest.ParkSpaceId
-                && (booking.StartTime >= bookingRequest.StartTime && booking.EndTime <= bookingRequest.StartTime);
+                && ((booking.StartTime <= bookingRequest.StartTime && booking.EndTime >= bookingRequest.StartTime) // if StartTime is in the range of already inserted
+                || (booking.StartTime <= bookingRequest.StartTime + bookingRequest.Duration && booking.StartTime >= bookingRequest.StartTime + bookingRequest.Duration)); // if StartTime + duration is in the range of already inserted
 
-            var precentedBooking = _bookingRepository.FindByCriteria(expression);
+            var presentedBooking = _bookingRepository.FindByCriteria(expression)
+                .FirstOrDefault();
 
-            if (precentedBooking != null)
+            if (presentedBooking != null)
             {
-                throw new Exception();
+                throw new Exception("Already reserved");
             }
             else
             {
@@ -52,6 +65,8 @@ namespace ParkingSpaces.Services
                 newBooking.Duration = bookingRequest.Duration;
                 newBooking.StartTime = bookingRequest.StartTime;
                 newBooking.EndTime = bookingRequest.StartTime + bookingRequest.Duration;
+                newBooking.UserId = currUser.Id;
+
                 await _bookingRepository.Create(newBooking);
             }
         }
@@ -66,7 +81,7 @@ namespace ParkingSpaces.Services
             throw new NotImplementedException();
         }
 
-        public Task UpdateBooking(BookingRequest booking, int id)
+        public Task UpdateBooking(BookingCreateBookingRequest booking, int id)
         {
             throw new NotImplementedException();
         }

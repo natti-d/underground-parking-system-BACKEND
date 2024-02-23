@@ -1,12 +1,11 @@
-﻿namespace ParkingSpaces.RequestObjects
+﻿namespace ParkingSpaces.Models.Request
 {
-    public class BookingRequest
+    public class BookingCreateBookingRequest
     {
-        // or park space name?
         public int ParkSpaceId { get; set; }
 
+        // "duration": "02:30:00" 
         public TimeSpan Duration { get; set; }
-
         public DateTime StartTime { get; set; }
     }
 }

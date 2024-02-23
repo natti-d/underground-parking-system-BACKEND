@@ -1,5 +1,5 @@
 ﻿using ParkingSpaces.Models.DB;
-using ParkingSpaces.RequestObjects;
+using ParkingSpaces.Models.Request;
 
 namespace ParkingSpaces.Services
 {
@@ -7,11 +7,11 @@ namespace ParkingSpaces.Services
     {
         // async
 
-        public Task CreateBooking(BookingRequest booking, string username);
+        public Task CreateBooking(BookingCreateBookingRequest booking, string username);
 
         public Task DeleteBooking(int id);
 
-        public Task UpdateBooking(BookingRequest booking, int id);
+        public Task UpdateBooking(BookingCreateBookingRequest booking, int id);
 
         public Task<IEnumerable<Booking>> GetAllBookings();
     }

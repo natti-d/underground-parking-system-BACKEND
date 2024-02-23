@@ -6,9 +6,9 @@ namespace ParkingSpaces.Repository.Repository_Interfaces
     {
         IQueryable<T> FindAll();
 
-        IQueryable<T> FilterByCriteria(Expression<Func<T, bool>> expression);
+        IQueryable<T> FindByCriteria(Expression<Func<T, bool>> expression);
 
-        T FindByCriteria(Expression<Func<T, bool>> expression);
+        T FindById(int id);
 
         Task Create(T entity);
 

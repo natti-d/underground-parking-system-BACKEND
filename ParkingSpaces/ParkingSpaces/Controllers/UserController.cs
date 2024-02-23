@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using ParkingSpaces.Models.DB;
 using ParkingSpaces.Models.Request;
 using ParkingSpaces.Services;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -29,8 +31,8 @@ namespace ParkingSpaces.Controllers
         public ActionResult<string> Login(UserLoginRequest request)
         {
             var user = _dbContext.Users
-                .FirstOrDefault(x => 
-                    x.Username == request.Username && 
+                .FirstOrDefault(x =>
+                    x.Username == request.Username &&
                     x.Password == request.Password);
 
             if (user == null)
@@ -42,9 +44,15 @@ namespace ParkingSpaces.Controllers
             return Ok(token);
         }
 
+        [HttpGet]
+        public virtual async Task<int> GetNumber()
+        {
+            return 10;
+        }
+
         [HttpPost]
         public ActionResult<string> Register(UserRegisterRequest request)
-        { 
+        {
             //bool emailvalidation = IsValidEmail(request.Email);
             //if (emailvalidation)
             //{
@@ -102,7 +110,11 @@ namespace ParkingSpaces.Controllers
         {
             const string pattern = @"^(?!\.)(""([^""\r\\]|\\[""\r\\])*""|" + @"([-a-z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)*)(?<!\.)" + @"@[a-z0-9][\w\.-]*[a-z0-9]\.[a-z][a-z\.]*[a-z]$";
             var regex = new Regex(pattern, RegexOptions.IgnoreCase);
+
             return regex.IsMatch(email);
         }
+
+
+    
     }
 }

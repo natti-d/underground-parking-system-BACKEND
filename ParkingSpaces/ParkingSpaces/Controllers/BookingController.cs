@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using ParkingSpaces.RequestObjects;
+using ParkingSpaces.Models.Request;
 using ParkingSpaces.Services;
 using System.Security.Claims;
 
@@ -19,14 +19,22 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpPost]
-        public virtual async Task<ActionResult> CreateBooking(BookingRequest bookingRequest)
+        public virtual async Task<ActionResult> CreateBooking(BookingCreateBookingRequest bookingRequest)
         {
             string username = User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
                 .Value;
 
-            await _bookingService.CreateBooking(bookingRequest, username);
-            return Ok();
+            try
+            {
+                await _bookingService.CreateBooking(bookingRequest, username);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+   
         }
 
     }

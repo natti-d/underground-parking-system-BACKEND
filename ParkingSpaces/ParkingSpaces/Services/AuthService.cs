@@ -10,7 +10,7 @@ namespace ParkingSpaces.Services
         private readonly IUserRepository _userRepository;
 
         public AuthService(IUserRepository userRepository)
-        {
+            {
             _userRepository = userRepository;
         }
 
@@ -35,7 +35,8 @@ namespace ParkingSpaces.Services
             Expression<Func<User, bool>> expression = 
                 user => user.Username == usernamePasswordArray[0] && user.Password == usernamePasswordArray[1];
 
-            User user = _userRepository.FindByCriteria(expression);
+            User user = _userRepository.FindByCriteria(expression)
+                .FirstOrDefault();
 
             if (user == null)
             {
