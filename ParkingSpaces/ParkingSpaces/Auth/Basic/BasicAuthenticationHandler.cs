@@ -27,21 +27,21 @@ namespace ParkingSpaces.Authentication.Basic
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            if(!Request.Headers.ContainsKey("Authroization"))
+            if(!Request.Headers.ContainsKey("Authorization"))
             {
-                return AuthenticateResult.Fail("Unauthorized 123");
+                return AuthenticateResult.Fail("Unauthorized");
             }
 
             var authorizationHeader = Request.Headers["Authorization"].ToString();
 
             if (string.IsNullOrEmpty(authorizationHeader))
             {
-                return AuthenticateResult.Fail("Unauthorized 123");
+                return AuthenticateResult.Fail("Unauthorized");
             }
 
             if (!authorizationHeader.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase))
             {
-                return AuthenticateResult.Fail("Unauthorized 123");
+                return AuthenticateResult.Fail("Unauthorized");
             }
 
             string token = authorizationHeader.Substring(6);
@@ -52,12 +52,19 @@ namespace ParkingSpaces.Authentication.Basic
             // ? to try it, to test it
             if (credentials?.Length != 2)
             {
-                return AuthenticateResult.Fail("Unauthorized 123");
+                return AuthenticateResult.Fail("Unauthorized");
             }
 
             string username = credentials[0];
             string password = credentials[1];
 
+            // like a pointer, saved in a variable (like normal variable)
+            // a storage of a method
+            // Func<User, string> func = user => user.LastName;
+            // Action - the same, but return void
+
+            // data structure representing code
+            // anylize the code direct in the sql language
             Expression<Func<User, bool>> expression = user =>
                 user.Username == username
                 && user.Password == password;
@@ -66,7 +73,7 @@ namespace ParkingSpaces.Authentication.Basic
 
             if(user == null)
             {
-                return AuthenticateResult.Fail("Unauthorized 123");
+                return AuthenticateResult.Fail("Unauthorized");
             }
 
             // claim: the attributes for this user (type, value)

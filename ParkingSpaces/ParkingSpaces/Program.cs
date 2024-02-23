@@ -15,6 +15,9 @@ builder.Services.AddDbContext<ParkingSpacesDbContext>(options => options.UseSqlS
     builder.Configuration.GetConnectionString("DefaultConnection")
 ));
 
+// basic authentication middleware
+builder.Services.AddAuthentication("BasicAuthentication")
+    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
 // all services
 var dependencies = new Dependencies();
@@ -52,28 +55,19 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
-// basic authentication middleware
-//builder.Services.AddAuthentication(options =>
-//    {
-//        //options.DefaultAuthenticateScheme = "BasicAuthentication";
-//        options.DefaultChallengeScheme = "BasicAuthentication";
-//    })
-//    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
-
-builder.Services.AddAuthentication("BasicAuthentication")
-    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Demo API V1");
+    });
 }
 
-//app.UseAuthentication();
+app.UseAuthentication();
 app.UseAuthorization();
 
 // map all controllers in your application that are derived from `ControllerBase` or `Controller`.

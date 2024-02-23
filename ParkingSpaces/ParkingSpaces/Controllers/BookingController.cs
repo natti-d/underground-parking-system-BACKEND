@@ -6,7 +6,7 @@ using System.Security.Claims;
 
 namespace ParkingSpaces.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]/[action]")]
     [Authorize] // require to be authorized
     [ApiController]
     public class BookingController : ControllerBase
