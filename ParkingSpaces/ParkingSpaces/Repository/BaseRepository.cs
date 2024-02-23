@@ -3,9 +3,6 @@ using System.Linq.Expressions;
 
 namespace ParkingSpaces.Repository
 {
-    // abstract - why?
-    // async?
-
     // NOTE: define what we can make with the db
     public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
     {
@@ -21,8 +18,8 @@ namespace ParkingSpaces.Repository
             => RepositoryContext.Set<T>().Where(expression);
 
         // more good for quiring data
-            public virtual T FindById(int id)
-                => RepositoryContext.Set<T>().Find(id);
+        public virtual T FindById(int id)
+            => RepositoryContext.Set<T>().Find(id);
 
         public virtual IQueryable<T> FindAll() => RepositoryContext.Set<T>();
 

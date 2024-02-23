@@ -1,4 +1,5 @@
 ﻿using ParkingSpaces.Models.DB;
+using ParkingSpaces.Models.NewFolder;
 using ParkingSpaces.Models.Request;
 
 namespace ParkingSpaces.Services
@@ -7,12 +8,12 @@ namespace ParkingSpaces.Services
     {
         // async
 
-        public Task CreateBooking(BookingCreateBookingRequest booking, string username);
+        public Task CreateBooking(BookingCreateBookingRequest request, string username);
 
-        public Task DeleteBooking(int id);
+        public Task DeleteBooking(BookingDeleteBookingRequest request);
 
-        public Task UpdateBooking(BookingCreateBookingRequest booking, int id);
+        public Task UpdateBooking(BookingUpdateBookingRequest booking);
 
-        public Task<IEnumerable<Booking>> GetAllBookings();
+        public Task<IEnumerable<BookingGetActiveBookingsResponse>> GetActiveBookings(string username);
     }
 }
