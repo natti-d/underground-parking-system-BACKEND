@@ -22,13 +22,13 @@ namespace ParkingSpaces.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> CreateBooking(BookingCreateBookingRequest request)
         {
-            string username = User.Claims
+            int userId = int.Parse(User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                .Value;
+                .Value);
 
             try
             {
-                await _bookingService.CreateBooking(request, username);
+                await _bookingService.CreateBooking(request, userId);
                 return Ok();
             }
             catch (Exception ex)
@@ -66,15 +66,16 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpGet]
-        public virtual async Task<ActionResult<IEnumerable<BookingGetActiveBookingsResponse>>> GetActiveBookings()
+        public virtual async Task<ActionResult<IEnumerable<BookingGetActiveBookingsResponse>>> GetActiveBookingsForUser()
         {
-            string username = User.Claims
+            int userId = int.Parse(User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                .Value;
+                .Value);
 
             try
             {
-                return Ok(await _bookingService.GetActiveBookings(username));
+                // the await keyword make this method async
+                return Ok(await _bookingService.GetActiveBookingsForUser(userId));
             }
             catch (Exception ex)
             {
@@ -82,5 +83,17 @@ namespace ParkingSpaces.Controllers
             }
         }
 
+        [HttpGet]
+        public virtual async Task<ActionResult<BookingGetActiveBookingsResponse>> GetBookingById(int bookingId)
+        {
+            try
+            {
+                return Ok(await _bookingService.GetBookingById(bookingId));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

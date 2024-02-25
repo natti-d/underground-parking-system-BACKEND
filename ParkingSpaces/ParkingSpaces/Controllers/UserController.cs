@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ParkingSpaces.Models.DB;
 using ParkingSpaces.Models.Request;
+using ParkingSpaces.Models.Response;
 using ParkingSpaces.Services;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -15,106 +17,95 @@ namespace ParkingSpaces.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly IAuthService _authService;
-        private readonly ParkingSpacesDbContext _dbContext;
+        private readonly IUserService _userService;
 
-        public UserController(
-            ParkingSpacesDbContext dbContext,
-            IAuthService authService,
-            IConfiguration configuration)
+        public UserController(IUserService userService)
         {
-            _authService = authService;
-            _dbContext = dbContext ?? throw new NullReferenceException();
+            _userService = userService ?? throw new NullReferenceException();
         }
 
         [HttpPost]
-        public ActionResult<string> Login(UserLoginRequest request)
+        public virtual async Task<IActionResult> Login(UserLoginRequest request)
         {
-            var user = _dbContext.Users
-                .FirstOrDefault(x =>
-                    x.Username == request.Username &&
-                    x.Password == request.Password);
-
-            if (user == null)
+            try
             {
-                return NotFound();
+                await _userService.Login(request);
+                return Ok();
             }
-
-            string token = _authService.CreateToken(user.Username, user.Password);
-            return Ok(token);
-        }
-
-        [HttpGet]
-        public virtual async Task<int> GetNumber()
-        {
-            return 10;
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]
-        public ActionResult<string> Register(UserRegisterRequest request)
+        public virtual async Task<IActionResult> Register(UserRegisterRequest request)
         {
-            //bool emailvalidation = IsValidEmail(request.Email);
-            //if (emailvalidation)
-            //{
-            //    return BadRequest("Invalid email!");
-            //}
-            //if (_dbContext.Users.Any(x => x.Username == request.Username))
-            //{
-            //    return BadRequest("This username is already taken!");
-            //}
-            //if (_dbContext.Users.Any(x => x.Email == request.Email))
-            //{
-            //    return BadRequest("This Email is already taken!");
-            //}
-            //if (request.Username.Length < 3 && request.Username.Length > 30)
-            //{
-            //    return BadRequest();
-            //}
-            //if (request.Password.Length > 30 || request.Password.Length < 8)
-            //{
-            //    return BadRequest();
-            //}
-            //if (request.FirstName.Length > 30 || request.FirstName.Length < 2)
-            //{
-            //    return BadRequest();
-            //}
-            //if (request.LastName.Length > 30 || request.LastName.Length < 2)
-            //{
-            //    return BadRequest();
-            //}
+            try
+            {
+                await _userService.Register(request);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-            User user = new User();
-            user.Username = request.Username;
-            user.Email = request.Email;
-            user.Password = request.Password;
-            user.FirstName = request.FirstName;
-            user.LastName = request.LastName;
-            user.Plate = request.Plate;
+        [Authorize]
+        [HttpDelete]
+        public virtual async Task<IActionResult> Delete()
+        {
+            int userId = int.Parse(User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value);
 
-            string token = _authService.CreateToken(user.Username, user.Password);
+            try
+            {
+                await _userService.Delete(userId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-            _dbContext.Users.Add(user);
-            _dbContext.SaveChanges();
+        [Authorize]
+        [HttpPut]
+        public virtual async Task<IActionResult> Update(UserUpdateRequest request)
+        {
+            int userId = int.Parse(User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value);
 
-            return Ok(token);
+            try
+            {
+                await _userService.Update(request, userId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [Authorize]
         [HttpGet]
-        public ActionResult<int> GetMaginNumber()
+        public virtual async Task<ActionResult<UserGetInfoResponse>> GetInfo()
         {
-            return Ok(10);
+            int userId = int.Parse(User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value);
+
+            try
+            {
+                return Ok(await _userService.GetInfo(userId));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
-
-        private bool IsValidEmail(string email)
-        {
-            const string pattern = @"^(?!\.)(""([^""\r\\]|\\[""\r\\])*""|" + @"([-a-z0-9!#$%&'*+/=?^_`{|}~]|(?<!\.)\.)*)(?<!\.)" + @"@[a-z0-9][\w\.-]*[a-z0-9]\.[a-z][a-z\.]*[a-z]$";
-            var regex = new Regex(pattern, RegexOptions.IgnoreCase);
-
-            return regex.IsMatch(email);
-        }
-
-
-    
     }
 }

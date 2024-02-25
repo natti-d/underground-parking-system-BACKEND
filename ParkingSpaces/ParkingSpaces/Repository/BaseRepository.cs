@@ -6,20 +6,19 @@ namespace ParkingSpaces.Repository
     // NOTE: define what we can make with the db
     public abstract class BaseRepository<T> : IBaseRepository<T> where T : class
     {
-        public ParkingSpacesDbContext RepositoryContext { get; set; }
+        protected ParkingSpacesDbContext RepositoryContext { get; set; }
 
-        public BaseRepository(ParkingSpacesDbContext repository_Context)
+        protected BaseRepository(ParkingSpacesDbContext repository_Context)
         {
             RepositoryContext = repository_Context;
         }
 
-        // filter by criteria
         public virtual IQueryable<T> FindByCriteria(Expression<Func<T, bool>> expression)
             => RepositoryContext.Set<T>().Where(expression);
 
         // more good for quiring data
-        public virtual T FindById(int id)
-            => RepositoryContext.Set<T>().Find(id);
+        public virtual async Task<T> FindById(int id)
+            => await RepositoryContext.Set<T>().FindAsync(id);
 
         public virtual IQueryable<T> FindAll() => RepositoryContext.Set<T>();
 
