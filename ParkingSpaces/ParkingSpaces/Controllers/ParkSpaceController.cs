@@ -23,6 +23,7 @@ namespace ParkingSpaces.Controllers
         // one multiple selects query
         // background service
         // real time space availability
+        // background service to delete the bookings after 24 hours
 
         [HttpGet]
         public virtual async Task<ActionResult<IEnumerable<ParkSpaceGetAvaildableParkSpacesResponse>>> GetAvaildableParkSpaces()

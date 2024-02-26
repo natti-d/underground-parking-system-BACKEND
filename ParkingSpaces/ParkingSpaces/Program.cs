@@ -5,6 +5,7 @@ using Microsoft.OpenApi.Models;
 using ParkingSpaces;
 using ParkingSpaces.Authentication.Basic;
 using ParkingSpaces.Configuration;
+using ParkingSpaces.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,18 @@ builder.Services.AddAuthentication("BasicAuthentication")
 // all services
 var dependencies = new Dependencies();
 dependencies.DefineDependencies(builder);
+
+// cors
+builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", builder => {
+    builder
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+    .AllowCredentials()
+    .WithOrigins("http://localhost:5500");
+}));
+
+// singalR
+builder.Services.AddSignalR();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -73,8 +86,29 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+// cors
+app.UseCors("CorsPolicy");
+
+// singalR
+// RouteTable.Routes.MapHubs(new HubConfiguration { EnableCrossDomain = true });
+
+//app.UseSignalR(routes =>
+//{
+//    routes.MapHub<NotifyHub>("/notify");
+//});
+
+app.UseRouting();
+
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseEndpoints(endpoints =>
+{
+    // Adjust the route and specify the name of your hub
+    endpoints.MapHub<ParkSpaceAvailabilityHub>("/chat");
+});
+
+
 
 // map all controllers in your application that are derived from `ControllerBase` or `Controller`.
 app.MapControllers();
