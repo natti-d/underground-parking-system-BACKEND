@@ -28,14 +28,17 @@ dependencies.DefineDependencies(builder);
 // cors
 builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", builder => {
     builder
-    .AllowAnyMethod()
-    .AllowAnyHeader()
-    .AllowCredentials()
-    .WithOrigins("http://localhost:5500");
+    .AllowAnyOrigin();
+    //.AllowAnyMethod()
+    //.AllowAnyHeader()
+    //.WithOrigins("http://localhost:5501", "http://localhost:7106");
 }));
 
 // singalR
-builder.Services.AddSignalR();
+//builder.Services.AddSignalR(o =>
+//{
+//    o.EnableDetailedErrors = true;
+//});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -97,16 +100,13 @@ app.UseCors("CorsPolicy");
 //    routes.MapHub<NotifyHub>("/notify");
 //});
 
-app.UseRouting();
+//app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    // Adjust the route and specify the name of your hub
-    endpoints.MapHub<ParkSpaceAvailabilityHub>("/chat");
-});
+//app.MapHub<ParkSpaceAvailabilityHub>("/chat");
+//app.UseEndpoints(hub config);
 
 
 

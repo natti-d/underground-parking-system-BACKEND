@@ -7,8 +7,8 @@ using System.Security.Claims;
 
 namespace ParkingSpaces.Controllers
 {
-    [Route("[controller]/[action]")]
-    [Authorize] // require to be authorized
+    [Route("api/[controller]")]
+    [Authorize]
     [ApiController]
     public class BookingController : ControllerBase
     {
@@ -16,19 +16,20 @@ namespace ParkingSpaces.Controllers
 
         public BookingController(IBookingService bookingService)
         {
-            _bookingService = bookingService;
+            _bookingService = bookingService ?? throw new NullReferenceException();
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> CreateBooking(BookingCreateBookingRequest request)
+        [Route("/booking/")]
+        public virtual async Task<IActionResult> Create(BookingCreate request)
         {
             int userId = int.Parse(User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                .Value);
+                .Value); // what to do?
 
             try
             {
-                await _bookingService.CreateBooking(request, userId);
+                await _bookingService.Create(request, userId);
                 return Ok();
             }
             catch (Exception ex)
@@ -38,11 +39,12 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpDelete]
-        public virtual async Task<IActionResult> DeleteBooking(BookingDeleteBookingRequest request)
+        [Route("/booking/")]
+        public virtual async Task<IActionResult> Delete(BookingDelete request)
         {
             try
             {
-                await _bookingService.DeleteBooking(request);
+                await _bookingService.Delete(request);
                 return Ok();
             }
             catch (Exception ex)
@@ -52,11 +54,12 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpPut]
-        public virtual async Task<IActionResult> UpdateBooking(BookingUpdateBookingRequest request)
+        [Route("/booking/")]
+        public virtual async Task<IActionResult> Update(BookingUpdate request)
         {
             try
             {
-                await _bookingService.UpdateBooking(request);
+                await _bookingService.Update(request);
                 return Ok();
             }
             catch (Exception ex)
@@ -66,7 +69,8 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpGet]
-        public virtual async Task<ActionResult<IEnumerable<BookingGetActiveBookingsResponse>>> GetActiveBookingsForUser()
+        [Route("/booking/")]
+        public virtual async Task<ActionResult<IEnumerable<BookingGetAllActive>>> GetActiveForUser()
         {
             int userId = int.Parse(User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
@@ -75,7 +79,7 @@ namespace ParkingSpaces.Controllers
             try
             {
                 // the await keyword make this method async
-                return Ok(await _bookingService.GetActiveBookingsForUser(userId));
+                return Ok(await _bookingService.GetActiveForUser(userId));
             }
             catch (Exception ex)
             {
@@ -84,11 +88,12 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpGet]
-        public virtual async Task<ActionResult<BookingGetActiveBookingsResponse>> GetBookingById(int bookingId)
+        [Route("/booking/{bookingId}")]
+        public virtual async Task<ActionResult<BookingGetAllActive>> GetById(int bookingId)
         {
             try
             {
-                return Ok(await _bookingService.GetBookingById(bookingId));
+                return Ok(await _bookingService.GetById(bookingId));
             }
             catch (Exception ex)
             {

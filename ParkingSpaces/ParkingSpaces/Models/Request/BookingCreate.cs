@@ -1,0 +1,11 @@
+﻿namespace ParkingSpaces.Models.Request
+{
+    public class BookingCreate
+    {
+        public int ParkSpaceId { get; set; }
+
+        // "duration": "02:30:00" 
+        public TimeSpan Duration { get; set; }
+        public DateTime StartTime { get; set; }
+    }
+}

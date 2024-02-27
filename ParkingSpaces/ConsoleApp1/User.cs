@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace ConsoleApp1
 {
-    public class User
+    public class Person
     {
-        public string Name { get; set; }
-        public int Age { get; set; }
+        public string FirstName { get; set; }
+        public string? MiddleName { get; set; } // MiddleName can be null
+        public string LastName { get; set; }
     }
 }

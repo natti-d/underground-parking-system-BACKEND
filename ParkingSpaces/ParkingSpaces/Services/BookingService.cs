@@ -4,6 +4,8 @@ using ParkingSpaces.Models.Request;
 using ParkingSpaces.Repository.Repository_Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using System.Security.Claims;
+using ParkingSpaces.Models.Response;
 
 namespace ParkingSpaces.Services
 {
@@ -20,7 +22,7 @@ namespace ParkingSpaces.Services
             _bookingRepository = bookingRepository;
         }
     
-        public virtual async Task CreateBooking(BookingCreateBookingRequest request, int userId)
+        public virtual async Task Create(BookingCreate request, int userId)
         {
             User user = await _userRepository.FindById(userId);
 
@@ -66,7 +68,7 @@ namespace ParkingSpaces.Services
 
                 newBooking.ParkSpaceId = request.ParkSpaceId;
                 newBooking.Duration = request.Duration;
-                newBooking.StartTime = request.StartTime;
+                newBooking.StartTime = request.StartTime;   
                 newBooking.EndTime = request.StartTime + request.Duration;
                 newBooking.UserId = user.Id;
 
@@ -74,7 +76,7 @@ namespace ParkingSpaces.Services
             }
         }
 
-        public virtual async Task DeleteBooking(BookingDeleteBookingRequest request)
+        public virtual async Task Delete(BookingDelete request)
         {
             Expression<Func<Booking, bool>> findBookingExpression = booking => booking.Id == request.BookingId;
 
@@ -92,7 +94,7 @@ namespace ParkingSpaces.Services
             }
         }
 
-        public virtual async Task UpdateBooking(BookingUpdateBookingRequest request)
+        public virtual async Task Update(BookingUpdate request)
         {
             if (request.Duration.TotalHours > 8
                 || request.Duration.TotalMilliseconds == 0)
@@ -142,21 +144,7 @@ namespace ParkingSpaces.Services
             }
         }
 
-        public virtual async Task<BookingGetActiveBookingsResponse> GetBookingById(int bookingId)
-        {
-            Booking booking = await _bookingRepository.FindById(bookingId);
-
-            return new BookingGetActiveBookingsResponse()
-            {
-                BookingId = booking.Id,
-                ParkSpaceId = booking.ParkSpaceId,
-                Duration = booking.Duration,
-                StartTime = booking.StartTime,
-                EndTime = booking.EndTime,
-            };
-        }
-
-        public virtual async Task<IEnumerable<BookingGetActiveBookingsResponse>> GetActiveBookingsForUser(int userId)
+        public virtual async Task<IEnumerable<BookingGetAllActive>> GetActiveForUser(int userId)
         {
             User user = await _userRepository.FindById(userId);
 
@@ -173,7 +161,7 @@ namespace ParkingSpaces.Services
             IQueryable<Booking> activeBookings = _bookingRepository
                 .FindByCriteria(findAvailableExpression);
 
-            var activeBookingsResponse = activeBookings.Select(booking => new BookingGetActiveBookingsResponse
+            var activeBookingsResponse = activeBookings.Select(booking => new BookingGetAllActive
             {
                 BookingId = booking.Id,
                 ParkSpaceId = booking.ParkSpaceId,
@@ -185,8 +173,23 @@ namespace ParkingSpaces.Services
             return activeBookingsResponse;
         }
 
+        public virtual async Task<BookingGetAllActive> GetById(int bookingId)
+        {
+            Booking booking = await _bookingRepository.FindById(bookingId);
+
+            return new BookingGetAllActive()
+            {
+                BookingId = booking.Id,
+                ParkSpaceId = booking.ParkSpaceId,
+                Duration = booking.Duration,
+                StartTime = booking.StartTime,
+                EndTime = booking.EndTime,
+            };
+        }
+
         // return all active bookings
-        public virtual async Task<IQueryable<BookingGetActiveBookingsResponse>> GetActiveBookings()
+        // optional
+        public virtual async Task<IQueryable<BookingGetAllActive>> GetAllActive()
         {
             Expression<Func<Booking, bool>> findAvailableExpression = booking => 
                 ((booking.StartTime <= DateTime.UtcNow && booking.EndTime >= DateTime.UtcNow)
@@ -195,7 +198,7 @@ namespace ParkingSpaces.Services
             var activeBookings = _bookingRepository
                 .FindByCriteria(findAvailableExpression);
 
-            var activeBookingsResponse = activeBookings.Select(booking => new BookingGetActiveBookingsResponse
+            var activeBookingsResponse = activeBookings.Select(booking => new BookingGetAllActive
             {
                 BookingId = booking.Id,
                 ParkSpaceId = booking.ParkSpaceId,
@@ -207,15 +210,16 @@ namespace ParkingSpaces.Services
             return activeBookingsResponse;
         }
 
-        public virtual async Task<IQueryable<BookingGetActiveBookingsResponse>> GetActiveBookingsForNow()
+        // return all active bookings only for now!
+        public virtual async Task<IQueryable<BookingGetAllActive>> GetActiveForNow()
         {
-            Expression<Func<Booking, bool>> findAvailableExpression = booking =>
+            Expression<Func<Booking, bool>> expression = booking =>
                 (booking.StartTime <= DateTime.UtcNow && booking.EndTime >= DateTime.UtcNow);
 
             IQueryable<Booking> activeBookings = _bookingRepository
-                .FindByCriteria(findAvailableExpression);
+                .FindByCriteria(expression);
 
-            var activeBookingsResponse = activeBookings.Select(booking => new BookingGetActiveBookingsResponse
+            var activeBookingsResponse = activeBookings.Select(booking => new BookingGetAllActive
             {
                 BookingId = booking.Id,
                 ParkSpaceId = booking.ParkSpaceId,
@@ -226,6 +230,26 @@ namespace ParkingSpaces.Services
 
             return activeBookingsResponse;
         }
-        
+
+        // get available by filter (from, to)
+        public virtual async Task<IQueryable<BookingGetAvailable>> GetAvailableByFilter(ParkSpaceGetAvailableFilter request)
+        {
+            Expression<Func<Booking, bool>> expression = booking =>
+                booking.EndTime <= request.From && booking.StartTime >= request.To;
+
+            IQueryable<Booking> availableBookings = _bookingRepository
+                .FindByCriteria(expression);
+
+            var activeBookingsResponse = availableBookings.Select(booking => new BookingGetAvailable
+            {
+                BookingId = booking.Id,
+                ParkSpaceId = booking.ParkSpaceId,
+                Duration = booking.Duration,
+                StartTime = booking.StartTime,
+                EndTime = booking.EndTime,
+            });
+
+            return activeBookingsResponse;
+        }
     }
 }

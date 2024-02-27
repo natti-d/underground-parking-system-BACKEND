@@ -4,20 +4,12 @@
     {
         static void Main(string[] args)
         {
-            User user  = new User();    
+            Console.WriteLine();
+            Person person = new Person();
 
-            user.Age = 19;
-
-            Func<User, bool> func = user => user.Age > 18;
-
-            bool result = func(user);
-
-            Console.WriteLine(result);
+            person.FirstName = null;
+            person.MiddleName = null;
+            person.LastName = "Boiko";
         }
-
-        //public TimeSpan GetTimeSpan()
-        //{
-        //    TimeSpan timeSpan = new TimeSpan();
-        //}
     }
 }

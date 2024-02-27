@@ -18,7 +18,7 @@ namespace ParkingSpaces.Services
             _userRepository = userRepository;
         }
 
-        public virtual async Task Login(UserLoginRequest request)
+        public virtual async Task Login(UserLogin request)
         {
             Expression<Func<User, bool>> expression = user => 
                 user.Username == request.Username
@@ -34,8 +34,32 @@ namespace ParkingSpaces.Services
             }
         }
 
-        public virtual async Task Register(UserRegisterRequest request)
+        public virtual async Task Register(UserRegister request)
         {
+            if (request.Plate == string.Empty)
+            {
+                throw new Exception("Type your plate!");
+            }
+            if (request.Username.Length < 3 || request.Username.Length > 30)
+            {
+                throw new Exception("Username length");
+            }
+
+            if (request.Password.Length > 30 || request.Password.Length < 8)
+            {
+                throw new Exception("Password length");
+            }
+
+            if (request.FirstName.Length > 30 || request.FirstName.Length < 2)
+            {
+                throw new Exception("Firstname length");
+            }
+
+            if (request.LastName.Length > 30 || request.LastName.Length < 2)
+            {
+                throw new Exception("Lastname length");
+            }
+
             bool emailvalidation = IsValidEmail(request.Email);
             if (!emailvalidation)
             {
@@ -60,23 +84,7 @@ namespace ParkingSpaces.Services
             if (emailPresented)
             {
                 throw new Exception("This Email is already taken!");
-            }
-            if (request.Username.Length < 3 && request.Username.Length > 30)
-            {
-                throw new Exception("Username length");
-            }
-            if (request.Password.Length > 30 || request.Password.Length < 8)
-            {
-                throw new Exception("Password length");
-            }
-            if (request.FirstName.Length > 30 || request.FirstName.Length < 2)
-            {
-                throw new Exception("Firstname length");
-            }
-            if (request.LastName.Length > 30 || request.LastName.Length < 2)
-            {
-                throw new Exception("Lastname length");
-            }
+            }   
 
             User user = new User();
             user.Username = request.Username;
@@ -101,7 +109,7 @@ namespace ParkingSpaces.Services
             await _userRepository.Delete(user);
         }
 
-        public virtual async Task Update(UserUpdateRequest request, int userId)
+        public virtual async Task Update(UserUpdate request, int userId)
         {
             bool emailvalidation = IsValidEmail(request.Email);
             if (!emailvalidation)
@@ -163,11 +171,11 @@ namespace ParkingSpaces.Services
             await _userRepository.Update(userForUpdate);
         }
 
-        public virtual async Task<UserGetInfoResponse> GetInfo(int userId)
+        public virtual async Task<UserGetInfo> GetInfo(int userId)
         {
             User user = await _userRepository.FindById(userId);
 
-            return new UserGetInfoResponse()
+            return new UserGetInfo()
             {
                 Username = user.Username,
                 Plate = user.Plate,
