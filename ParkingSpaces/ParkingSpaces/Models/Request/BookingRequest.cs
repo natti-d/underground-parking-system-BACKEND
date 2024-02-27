@@ -1,6 +1,6 @@
 ﻿namespace ParkingSpaces.Models.Request
 {
-    public class BookingCreate
+    public class BookingRequest
     {
         public int ParkSpaceId { get; set; }
 

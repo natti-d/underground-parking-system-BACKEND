@@ -7,11 +7,11 @@ namespace ParkingSpaces.Services
     {
         public Task Login(UserLogin request);
 
-        public Task Register(UserRegister request);
+        public Task Register(UserRequest request);
 
         public Task Delete(int userId);
 
-        public Task Update(UserUpdate request, int userId);
+        public Task Update(UserRequest request, int userId);
 
         public Task<UserGetInfo> GetInfo(int userId);
     }

@@ -7,7 +7,7 @@ using ParkingSpaces.Services;
 
 namespace ParkingSpaces.Controllers
 {
-    [Route("api/[controller][action]")]
+    [Route("api/parkSpace[action]")]
     [Authorize] // require to be authorized
     [ApiController]
     public class ParkSpaceController : ControllerBase
@@ -25,7 +25,7 @@ namespace ParkingSpaces.Controllers
         // background service to delete the bookings after 24 hours
 
         [HttpGet]
-        public virtual async Task<ActionResult<IEnumerable<ParkSpaceGetAvaildable>>> GetAvailable()
+        public virtual async Task<ActionResult<IEnumerable<ParkSpaceResponse>>> GetAvailable()
         {
             try
             {
@@ -38,7 +38,7 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpGet]
-        public virtual async Task<ActionResult<IEnumerable<ParkSpaceGetAvaildable>>> GetAvailableByFilter([FromQuery]ParkSpaceGetAvailableFilter request)
+        public virtual async Task<ActionResult<IEnumerable<ParkSpaceResponse>>> GetAvailableByFilter([FromQuery]ParkSpaceGetAvailableByFilter request)
         {
             try
             {

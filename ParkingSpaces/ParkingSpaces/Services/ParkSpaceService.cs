@@ -5,6 +5,7 @@ using ParkingSpaces.Models.Request;
 using ParkingSpaces.Models.Response;
 using ParkingSpaces.Repository.Repository_Interfaces;
 using System.Linq.Expressions;
+using System.Xml.Linq;
 
 namespace ParkingSpaces.Services
 {
@@ -22,9 +23,9 @@ namespace ParkingSpaces.Services
         }
         
         // get all available park spaces for now
-        public virtual async Task<IEnumerable<ParkSpaceGetAvaildable>> GetAvailable()
+        public virtual async Task<IEnumerable<ParkSpaceResponse>> GetAvailable()
         {
-            IQueryable<BookingGetAllActive> activeBookings = await _bookingService
+            IQueryable<BookingResponse> activeBookings = await _bookingService
                 .GetActiveForNow();
 
             Expression<Func<ParkSpace, bool>> expression = parkSpace => !activeBookings
@@ -33,7 +34,7 @@ namespace ParkingSpaces.Services
             IQueryable<ParkSpace> parkSpaces = _parkSpaceRepository
                 .FindByCriteria(expression);
 
-            var availdableParkSpaces = parkSpaces.Select(parkSpace => new ParkSpaceGetAvaildable
+            var availdableParkSpaces = parkSpaces.Select(parkSpace => new ParkSpaceResponse
             {
                 ParkSpaceId = parkSpace.Id,
                 Name = parkSpace.Name
@@ -44,26 +45,51 @@ namespace ParkingSpaces.Services
         }
 
         // get all available park spaces by filter (from, to)
-        public virtual async Task<IEnumerable<ParkSpaceGetAvaildable>> GetAvailableByFilter(ParkSpaceGetAvailableFilter request)
+        public virtual async Task<IEnumerable<ParkSpaceResponse>> GetAvailableByFilter(ParkSpaceGetAvailableByFilter request)
         {
-            IQueryable<BookingGetAllActive> availdable = await _bookingService
+            IQueryable<BookingResponse> availdableBookings = await _bookingService
                 .GetAvailableByFilter(request);
 
-            // to see it
-            Expression<Func<ParkSpace, bool>> expression = parkSpace => availdable
-                .Any(b => b.ParkSpaceId == parkSpace.Id);
+            IQueryable<int> parkSpaceIds = availdableBookings
+                .Select(b => b.ParkSpaceId)
+                .Distinct();
 
-            IQueryable<ParkSpace> parkSpaces = _parkSpaceRepository
-                .FindByCriteria(expression);
 
-            var availdableParkSpaces = parkSpaces.Select(parkSpace => new ParkSpaceGetAvaildable
+            // is efficient
+            // with one query?
+
+            
+            var parkSpaces = new List<ParkSpaceResponse>();
+            foreach (var parkSpaceId in parkSpaceIds)
             {
-                ParkSpaceId = parkSpace.Id,
-                Name = parkSpace.Name
-            });
+                // 16 * 4 miliseconds
+                var parkSpaceName = (await _parkSpaceRepository
+                    .FindById(parkSpaceId)).Name;
 
-            return await availdableParkSpaces
+                parkSpaces.Add(new ParkSpaceResponse()
+                {
+                    ParkSpaceId = parkSpaceId,
+                    Name = parkSpaceName
+                });
+            }
+
+            Expression<Func<ParkSpace, bool>> expression = parkSpace =>
+                parkSpace.Bookings.Count == 0;
+
+            IEnumerable<ParkSpace> emptyParkSpaces = await _parkSpaceRepository
+                .FindByCriteria(expression)
                 .ToListAsync();
+
+            foreach (var space in emptyParkSpaces)
+            {
+                parkSpaces.Add(new ParkSpaceResponse()
+                {
+                    ParkSpaceId = space.Id,
+                    Name = space.Name
+                });
+            }
+
+            return parkSpaces;
         }
     }
 }

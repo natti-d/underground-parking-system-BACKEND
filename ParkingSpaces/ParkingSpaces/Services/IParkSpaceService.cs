@@ -6,8 +6,8 @@ namespace ParkingSpaces.Services
 {
     public interface IParkSpaceService
     {
-        public Task<IEnumerable<ParkSpaceGetAvaildable>> GetAvailable();
+        public Task<IEnumerable<ParkSpaceResponse>> GetAvailable();
 
-        public Task<IEnumerable<ParkSpaceGetAvaildable>> GetAvailableByFilter(ParkSpaceGetAvailableFilter request);
+        public Task<IEnumerable<ParkSpaceResponse>> GetAvailableByFilter(ParkSpaceGetAvailableByFilter request);
     }
 }

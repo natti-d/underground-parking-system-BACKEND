@@ -51,7 +51,7 @@ namespace ParkingSpaces.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Bookings");
+                    b.ToTable("Bookings", (string)null);
                 });
 
             modelBuilder.Entity("ParkingSpaces.Models.DB.ParkSpace", b =>
@@ -68,7 +68,7 @@ namespace ParkingSpaces.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ParkSpaces");
+                    b.ToTable("ParkSpaces", (string)null);
                 });
 
             modelBuilder.Entity("ParkingSpaces.Models.DB.User", b =>
@@ -105,7 +105,7 @@ namespace ParkingSpaces.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("ParkingSpaces.Models.DB.Booking", b =>

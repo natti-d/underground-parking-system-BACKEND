@@ -7,19 +7,19 @@ namespace ParkingSpaces.Services
 {
     public interface IBookingService
     {
-        public Task Create(BookingCreate request, int userId);
+        public Task Create(BookingRequest request, int userId);
 
         public Task Delete(BookingDelete request);
 
         public Task Update(BookingUpdate booking);
 
-        public Task<BookingGetAllActive> GetById(int bookingId);
+        public Task<BookingResponse> GetById(int bookingId);
 
-        public Task<IEnumerable<BookingGetAllActive>> GetActiveForUser(int userId);
+        public Task<IEnumerable<BookingResponse>> GetActiveForUser(int userId);
 
-        public Task<IQueryable<BookingGetAllActive>> GetAllActive();
-        public Task<IQueryable<BookingGetAllActive>> GetActiveForNow();
+        public Task<IQueryable<BookingResponse>> GetAllActive();
+        public Task<IQueryable<BookingResponse>> GetActiveForNow();
 
-        public Task<IQueryable<BookingGetAvailable>> GetAvailableByFilter(ParkSpaceGetAvailableFilter request);
+        public Task<IQueryable<BookingResponse>> GetAvailableByFilter(ParkSpaceGetAvailableByFilter request);
     }
 }

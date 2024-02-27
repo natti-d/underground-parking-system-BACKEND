@@ -7,7 +7,7 @@ using System.Security.Claims;
 
 namespace ParkingSpaces.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/booking")]
     [Authorize]
     [ApiController]
     public class BookingController : ControllerBase
@@ -20,8 +20,7 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpPost]
-        [Route("/booking/")]
-        public virtual async Task<IActionResult> Create(BookingCreate request)
+        public virtual async Task<IActionResult> Create(BookingRequest request)
         {
             int userId = int.Parse(User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
@@ -39,7 +38,6 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpDelete]
-        [Route("/booking/")]
         public virtual async Task<IActionResult> Delete(BookingDelete request)
         {
             try
@@ -54,7 +52,6 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpPut]
-        [Route("/booking/")]
         public virtual async Task<IActionResult> Update(BookingUpdate request)
         {
             try
@@ -69,8 +66,7 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpGet]
-        [Route("/booking/")]
-        public virtual async Task<ActionResult<IEnumerable<BookingGetAllActive>>> GetActiveForUser()
+        public virtual async Task<ActionResult<IEnumerable<BookingResponse>>> GetActiveForUser()
         {
             int userId = int.Parse(User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
@@ -89,7 +85,7 @@ namespace ParkingSpaces.Controllers
 
         [HttpGet]
         [Route("/booking/{bookingId}")]
-        public virtual async Task<ActionResult<BookingGetAllActive>> GetById(int bookingId)
+        public virtual async Task<ActionResult<BookingResponse>> GetById(int bookingId)
         {
             try
             {

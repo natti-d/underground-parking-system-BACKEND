@@ -34,7 +34,7 @@ namespace ParkingSpaces.Services
             }
         }
 
-        public virtual async Task Register(UserRegister request)
+        public virtual async Task Register(UserRequest request)
         {
             if (request.Plate == string.Empty)
             {
@@ -109,7 +109,7 @@ namespace ParkingSpaces.Services
             await _userRepository.Delete(user);
         }
 
-        public virtual async Task Update(UserUpdate request, int userId)
+        public virtual async Task Update(UserRequest request, int userId)
         {
             bool emailvalidation = IsValidEmail(request.Email);
             if (!emailvalidation)

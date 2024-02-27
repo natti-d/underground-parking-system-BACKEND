@@ -13,7 +13,7 @@ using System.Text.RegularExpressions;
 
 namespace ParkingSpaces.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/user")]
     [ApiController]
     public class UserController : ControllerBase
     {
@@ -25,7 +25,7 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpPost]
-        [Route("/user/login")] // is this good? (with two post methods)
+        [Route("/login")] // is this good? (with two post methods)
         public virtual async Task<IActionResult> Login(UserLogin request)
         {
             try
@@ -40,8 +40,8 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpPost]
-        [Route("/user/register")]
-        public virtual async Task<IActionResult> Register(UserRegister request)
+        [Route("/register")]
+        public virtual async Task<IActionResult> Register(UserRequest request)
         {
             try
             {
@@ -56,7 +56,6 @@ namespace ParkingSpaces.Controllers
 
         [Authorize]
         [HttpDelete]
-        [Route("/user/")]
         public virtual async Task<IActionResult> Delete()
         {
             int userId = int.Parse(User.Claims
@@ -76,8 +75,8 @@ namespace ParkingSpaces.Controllers
 
         [Authorize]
         [HttpPut]
-        [Route("/user/")]
-        public virtual async Task<IActionResult> Update(UserUpdate request)
+
+        public virtual async Task<IActionResult> Update(UserRequest request)
         {
             int userId = int.Parse(User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
@@ -96,7 +95,6 @@ namespace ParkingSpaces.Controllers
 
         [Authorize]
         [HttpGet]
-        [Route("/user/")]
         public virtual async Task<ActionResult<UserGetInfo>> GetInfo()
         {
             int userId = int.Parse(User.Claims

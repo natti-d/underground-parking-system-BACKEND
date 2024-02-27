@@ -23,7 +23,7 @@ namespace ParkingSpaces.Repository
         public virtual IQueryable<T> FindAll() => RepositoryContext.Set<T>();
 
         public virtual async Task Create(T entity)
-        {
+        { 
             await RepositoryContext.Set<T>().AddAsync(entity);
             await RepositoryContext.SaveChangesAsync();
         }

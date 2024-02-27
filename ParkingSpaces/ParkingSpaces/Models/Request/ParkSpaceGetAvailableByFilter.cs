@@ -1,6 +1,6 @@
 ﻿namespace ParkingSpaces.Models.Request
 {
-    public class ParkSpaceGetAvailableFilter
+    public class ParkSpaceGetAvailableByFilter
     {
         public DateTime From { get; set; }
 

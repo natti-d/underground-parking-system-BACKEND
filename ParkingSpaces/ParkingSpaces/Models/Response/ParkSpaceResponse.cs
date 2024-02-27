@@ -1,6 +1,6 @@
 ﻿namespace ParkingSpaces.Models.Response
 {
-    public class ParkSpaceGetAvaildable
+    public class ParkSpaceResponse
     {
         public int ParkSpaceId { get; set; }
         public string Name { get; set; }
