@@ -10,5 +10,11 @@ namespace ParkingSpaces.Repository.Repository_Models
             : base(repository_Context)
         {
         }
+
+        public async Task DeleteRange(IQueryable<Booking> entities)
+        {
+            RepositoryContext.RemoveRange(entities);
+            await RepositoryContext.SaveChangesAsync();
+        }
     }
 }

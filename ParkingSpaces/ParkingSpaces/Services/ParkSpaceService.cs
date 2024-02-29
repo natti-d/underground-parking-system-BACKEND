@@ -47,16 +47,10 @@ namespace ParkingSpaces.Services
         // get all available park spaces by filter (from, to)
         public virtual async Task<IEnumerable<ParkSpaceResponse>> GetAvailableByFilter(ParkSpaceGetAvailableByFilter request)
         {
-            IQueryable<BookingResponse> availdableBookings = await _bookingService
-                .GetAvailableByFilter(request);
-
-            IQueryable<int> parkSpaceIds = availdableBookings
+            IQueryable<int> parkSpaceIds = (await _bookingService
+                .GetAvailableByFilter(request))
                 .Select(b => b.ParkSpaceId)
                 .Distinct();
-
-
-            // is efficient
-            // with one query?
 
             
             var parkSpaces = new List<ParkSpaceResponse>();

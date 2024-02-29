@@ -251,5 +251,16 @@ namespace ParkingSpaces.Services
 
             return available;
         }
+
+        public virtual async Task DeleteOldBookings(int days)
+        {
+            Expression<Func<Booking, bool>> expression = booking =>
+                booking.EndTime.AddDays(days) <= DateTime.UtcNow;
+
+            IQueryable<Booking> bookings = _bookingRepository
+               .FindByCriteria(expression);
+
+            await _bookingRepository.DeleteRange(bookings);
+        }
     }
 }

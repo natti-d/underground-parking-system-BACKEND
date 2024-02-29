@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-// Register DbContext, instead of OnConfiguring method
+// Register DbContext, instead of OnConfiguring methodS
 // Pros: flexible and allows for centralized configuration
 builder.Services.AddDbContext<ParkingSpacesDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")
@@ -33,12 +33,6 @@ builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", builder => {
     //.AllowAnyHeader()
     //.WithOrigins("http://localhost:5501", "http://localhost:7106");
 }));
-
-// singalR
-//builder.Services.AddSignalR(o =>
-//{
-//    o.EnableDetailedErrors = true;
-//});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -92,23 +86,9 @@ if (app.Environment.IsDevelopment())
 // cors
 app.UseCors("CorsPolicy");
 
-// singalR
-// RouteTable.Routes.MapHubs(new HubConfiguration { EnableCrossDomain = true });
-
-//app.UseSignalR(routes =>
-//{
-//    routes.MapHub<NotifyHub>("/notify");
-//});
-
-//app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-//app.MapHub<ParkSpaceAvailabilityHub>("/chat");
-//app.UseEndpoints(hub config);
-
-
 
 // map all controllers in your application that are derived from `ControllerBase` or `Controller`.
 app.MapControllers();

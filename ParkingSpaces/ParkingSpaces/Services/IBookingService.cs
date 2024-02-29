@@ -21,5 +21,7 @@ namespace ParkingSpaces.Services
         public Task<IQueryable<BookingResponse>> GetActiveForNow();
 
         public Task<IQueryable<BookingResponse>> GetAvailableByFilter(ParkSpaceGetAvailableByFilter request);
+
+        public Task DeleteOldBookings(int days);
     }
 }
