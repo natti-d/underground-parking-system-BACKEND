@@ -25,7 +25,7 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpPost]
-        [Route("/login")] // is this good? (with two post methods)
+        [Route("login")] // is this good? (with two post methods)
         public virtual async Task<IActionResult> Login(UserLogin request)
         {
             try
@@ -40,7 +40,7 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpPost]
-        [Route("/register")]
+        [Route("register")]
         public virtual async Task<IActionResult> Register(UserRequest request)
         {
             try

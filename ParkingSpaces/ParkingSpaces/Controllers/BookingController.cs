@@ -84,7 +84,7 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpGet]
-        [Route("/booking/{bookingId}")]
+        [Route("{bookingId}")]
         public virtual async Task<ActionResult<BookingResponse>> GetById(int bookingId)
         {
             try
