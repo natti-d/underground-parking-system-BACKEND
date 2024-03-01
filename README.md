@@ -21,7 +21,7 @@ Users will be required to log in to the web application using their credentials 
 Users can view the available parking spaces in the underground facility and reserve a space for a specific time period, with a maximum duration of 8 hours. Upon successful reservation, the corresponding parking space will be marked as unavailable for the reserved duration.
 ##### 3.3. Reservation Management: 
 Users can view their active reservations, modify reservation details (e.g., time period), and cancel reservations if needed. The system will handle updates to parking space availability based on reservation modifications or cancellations.
-#### 3.4. SVG Parking Spot Selection: 
+##### 3.4. SVG Parking Spot Selection: 
 The web application will utilize SVG to visually represent the layout of the underground parking facility. Users will be able to interact with the SVG graphic to select a specific parking spot for their reservation. This interactive feature enhances the user experience by providing a visual representation of available parking spaces.
 #### 4. Technologies:
  - Frontend: React, HTML5, CSS3, JavaScript, SVG
@@ -32,8 +32,8 @@ The web application will utilize SVG to visually represent the layout of the und
 Real-time availability updates: Implementing real-time updates to parking space availability to provide users with instant feedback on space availability.
 Payment Integration: Integrating payment processing functionality for paid parking reservations.
 Notifications: Sending email or SMS notifications to users for reservation confirmations, reminders, or cancellations.
-##### 6. Future Considerations: 
+#### 6. Future Considerations: 
 The system can be further enhanced with features such as parking space occupancy monitoring using sensors, integration with external calendar applications for reservation scheduling, and analytics for parking space utilization.
-##### 7. Deployment: 
+#### 7. Deployment: 
 The system will be deployed on a cloud platform like AWS or Azure to ensure scalability, reliability, and accessibility from anywhere with an internet connection.
 This project aims to improve the efficiency of managing parking spaces in underground facilities while providing users with a convenient and reliable reservation system. The integration of SVG for parking spot selection enhances the user experience by providing a visual representation of available parking spaces within the facility.
