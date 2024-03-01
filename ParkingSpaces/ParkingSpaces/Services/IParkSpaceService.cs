@@ -9,5 +9,6 @@ namespace ParkingSpaces.Services
         public Task<IEnumerable<ParkSpaceResponse>> GetAvailable();
 
         public Task<IEnumerable<ParkSpaceResponse>> GetAvailableByFilter(ParkSpaceGetAvailableByFilter request);
+        public Task<ParkSpaceResponse> GetById(int parkSpaceId);
     }
 }

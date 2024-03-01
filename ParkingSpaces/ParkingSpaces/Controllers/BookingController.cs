@@ -24,7 +24,7 @@ namespace ParkingSpaces.Controllers
         {
             int userId = int.Parse(User.Claims
                 .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                .Value); // what to do?
+                .Value);
 
             try
             {
@@ -83,18 +83,18 @@ namespace ParkingSpaces.Controllers
             }
         }
 
-        [HttpGet]
-        [Route("{bookingId}")]
-        public virtual async Task<ActionResult<BookingResponse>> GetById(int bookingId)
-        {
-            try
-            {
-                return Ok(await _bookingService.GetById(bookingId));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
+        //[HttpGet]
+        //[Route("{bookingId}")]
+        //public virtual async Task<ActionResult<BookingResponse>> GetById(int bookingId)
+        //{
+        //    try
+        //    {
+        //        return Ok(await _bookingService.GetById(bookingId));
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(ex.Message);
+        //    }
+        //}
     }
 }

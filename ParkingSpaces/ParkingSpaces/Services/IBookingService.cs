@@ -13,7 +13,7 @@ namespace ParkingSpaces.Services
 
         public Task Update(BookingUpdate booking);
 
-        public Task<BookingResponse> GetById(int bookingId);
+        //public Task<BookingResponse> GetById(int bookingId);
 
         public Task<IEnumerable<BookingResponse>> GetActiveForUser(int userId);
 

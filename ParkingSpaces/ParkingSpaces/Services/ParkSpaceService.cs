@@ -4,6 +4,7 @@ using ParkingSpaces.Models.NewFolder;
 using ParkingSpaces.Models.Request;
 using ParkingSpaces.Models.Response;
 using ParkingSpaces.Repository.Repository_Interfaces;
+using ParkingSpaces.Repository.Repository_Models;
 using System.Linq.Expressions;
 using System.Xml.Linq;
 
@@ -84,6 +85,14 @@ namespace ParkingSpaces.Services
             }
 
             return parkSpaces;
+        }
+
+        public virtual async Task<ParkSpaceResponse> GetById(int parkSpaceId)
+        {
+            ParkSpace parkSpace = await _parkSpaceRepository
+                .FindById(parkSpaceId);
+
+            return new ParkSpaceResponse() { ParkSpaceId = parkSpace.Id, Name = parkSpace.Name, };
         }
     }
 }

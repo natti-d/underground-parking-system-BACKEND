@@ -13,13 +13,16 @@ namespace ParkingSpaces.Services
     {
         private readonly IBookingRepository _bookingRepository;
         private readonly IUserRepository _userRepository;
+        //private readonly IParkSpaceService _parkSpaceService;
 
         public BookingService(
             IBookingRepository bookingRepository,
             IUserRepository userRepository)
+            //IParkSpaceService parkSpaceService)
         {
             _userRepository = userRepository;
             _bookingRepository = bookingRepository;
+            //_parkSpaceService = parkSpaceService;
         }
 
         public virtual async Task Create(BookingRequest request, int userId)
@@ -159,12 +162,14 @@ namespace ParkingSpaces.Services
                     || booking.StartTime >= DateTime.UtcNow);
 
             IQueryable<Booking> activeBookings = _bookingRepository
-                .FindByCriteria(findAvailableExpression);
+                .FindByCriteria(findAvailableExpression)
+                .Include(b => b.ParkSpace);
 
             var activeBookingsResponse = activeBookings.Select(booking => new BookingResponse
             {
                 BookingId = booking.Id,
                 ParkSpaceId = booking.ParkSpaceId,
+                ParkSpaceName = booking.ParkSpace.Name,
                 Duration = booking.Duration,
                 StartTime = booking.StartTime,
                 EndTime = booking.EndTime,
@@ -173,19 +178,24 @@ namespace ParkingSpaces.Services
             return activeBookingsResponse;
         }
 
-        public virtual async Task<BookingResponse> GetById(int bookingId)
-        {
-            Booking booking = await _bookingRepository.FindById(bookingId);
+        //public virtual async Task<BookingResponse> GetById(int bookingId)
+        //{
+        //    Booking booking = await _bookingRepository
+        //        .FindById(bookingId);
 
-            return new BookingResponse()
-            {
-                BookingId = booking.Id,
-                ParkSpaceId = booking.ParkSpaceId,
-                Duration = booking.Duration,
-                StartTime = booking.StartTime,
-                EndTime = booking.EndTime,
-            };
-        }
+        //    ParkSpaceResponse parkSpace = await _parkSpaceService
+        //        .GetById(booking.ParkSpaceId);
+
+        //    return new BookingResponse()
+        //    {
+        //        BookingId = booking.Id,
+        //        ParkSpaceId = booking.ParkSpaceId,
+        //        ParkSpaceName = parkSpace.Name,
+        //        Duration = booking.Duration,
+        //        StartTime = booking.StartTime,
+        //        EndTime = booking.EndTime,
+        //    };
+        //}
 
         public virtual async Task<IQueryable<BookingResponse>> GetAllActive()
         {
@@ -194,12 +204,14 @@ namespace ParkingSpaces.Services
                 || booking.StartTime >= DateTime.UtcNow);
 
             var activeBookings = _bookingRepository
-                .FindByCriteria(findAvailableExpression);
+                .FindByCriteria(findAvailableExpression)
+                .Include(b => b.ParkSpace);
 
             var activeBookingsResponse = activeBookings.Select(booking => new BookingResponse
             {
                 BookingId = booking.Id,
                 ParkSpaceId = booking.ParkSpaceId,
+                ParkSpaceName = booking.ParkSpace.Name,
                 Duration = booking.Duration,
                 StartTime = booking.StartTime,
                 EndTime = booking.EndTime,
@@ -215,12 +227,14 @@ namespace ParkingSpaces.Services
                 (booking.StartTime <= DateTime.UtcNow && booking.EndTime >= DateTime.UtcNow);
 
             IQueryable<Booking> activeBookings = _bookingRepository
-                .FindByCriteria(expression);
+                .FindByCriteria(expression)
+                .Include(b => b.ParkSpace);
 
             var activeBookingsResponse = activeBookings.Select(booking => new BookingResponse
             {
                 BookingId = booking.Id,
                 ParkSpaceId = booking.ParkSpaceId,
+                ParkSpaceName = booking.ParkSpace.Name,
                 Duration = booking.Duration,
                 StartTime = booking.StartTime,
                 EndTime = booking.EndTime,
@@ -236,12 +250,14 @@ namespace ParkingSpaces.Services
                 booking.EndTime <= request.From || booking.StartTime >= request.To;
 
             IQueryable<Booking> availableBookingParkSpaces = _bookingRepository
-                .FindByCriteria(expression);
+                .FindByCriteria(expression)
+                .Include(b => b.ParkSpace);
 
             var available = availableBookingParkSpaces.Select(booking => new BookingResponse
             {
                 BookingId = booking.Id,
                 ParkSpaceId = booking.ParkSpaceId,
+                ParkSpaceName = booking.ParkSpace.Name,
                 Duration = booking.Duration,
                 StartTime = booking.StartTime,
                 EndTime = booking.EndTime,
