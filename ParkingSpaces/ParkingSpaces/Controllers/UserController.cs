@@ -25,7 +25,7 @@ namespace ParkingSpaces.Controllers
         }
 
         [HttpPost]
-        [Route("login")] // is this good? (with two post methods)
+        [Route("login")]
         public virtual async Task<IActionResult> Login(UserLogin request)
         {
             try

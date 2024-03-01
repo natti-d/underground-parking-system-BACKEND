@@ -39,7 +39,7 @@ namespace ParkingSpaces.Services
             }
 
             // validate the parkspace id (static data)
-            if (request.ParkSpaceId < 1 || request.ParkSpaceId > 16)
+            if (request.ParkSpaceId < 1 || request.ParkSpaceId > 17)
             {
                 throw new Exception("Incorrect park space!");
             }
@@ -187,8 +187,6 @@ namespace ParkingSpaces.Services
             };
         }
 
-        // return all active bookings
-        // optional
         public virtual async Task<IQueryable<BookingResponse>> GetAllActive()
         {
             Expression<Func<Booking, bool>> findAvailableExpression = booking =>

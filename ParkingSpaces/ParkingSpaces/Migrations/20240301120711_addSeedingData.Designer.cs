@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ParkingSpaces;
 
@@ -11,9 +12,10 @@ using ParkingSpaces;
 namespace ParkingSpaces.Migrations
 {
     [DbContext(typeof(ParkingSpacesDbContext))]
-    partial class ParkingSpacesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240301120711_addSeedingData")]
+    partial class addSeedingData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

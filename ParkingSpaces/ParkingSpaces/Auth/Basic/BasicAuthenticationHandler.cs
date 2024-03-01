@@ -80,6 +80,7 @@ namespace ParkingSpaces.Authentication.Basic
             }
 
             // claim: the attributes for this user (type, value)
+            // 
             var claims = new[] { new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()) };
 
             var identity = new ClaimsIdentity(claims, "Basic");

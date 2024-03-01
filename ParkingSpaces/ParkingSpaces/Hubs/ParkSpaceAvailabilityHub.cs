@@ -4,6 +4,7 @@ namespace ParkingSpaces.Hubs
 {
     public class ParkSpaceAvailabilityHub : Hub
     {
+        // testing purposes
         public async Task SendMessage(string user, string message)
         {
             Console.WriteLine(message);
