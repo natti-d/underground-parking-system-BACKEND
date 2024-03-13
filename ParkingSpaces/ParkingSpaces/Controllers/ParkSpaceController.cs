@@ -8,7 +8,7 @@ using ParkingSpaces.Services;
 namespace ParkingSpaces.Controllers
 {
     [Route("api/parkSpace[action]")]
-    [Authorize] // require to be authorized
+    [Authorize]
     [ApiController]
     public class ParkSpaceController : ControllerBase
     {
@@ -18,9 +18,6 @@ namespace ParkingSpaces.Controllers
         {
             _parkSpaceService = parkSpaceService ?? throw new NullReferenceException();
         }
-
-        // one multiple selects query
-        // real time space availability
 
         [HttpGet]
         public virtual async Task<ActionResult<IEnumerable<ParkSpaceResponse>>> GetAvailable()

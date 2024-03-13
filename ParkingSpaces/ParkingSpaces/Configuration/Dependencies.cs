@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.OpenApi.Models;
 using ParkingSpaces.BackgroundServices;
 using ParkingSpaces.Repository.Repository_Interfaces;
 using ParkingSpaces.Repository.Repository_Models;
@@ -6,9 +7,9 @@ using ParkingSpaces.Services;
 
 namespace ParkingSpaces.Configuration
 {
-    public class Dependencies
+    public static class Dependencies
     {
-        public void DefineDependencies(WebApplicationBuilder builder)
+        public static void DefineDependencies(WebApplicationBuilder builder)
         {
             // services
             builder.Services.AddScoped<IBookingService, BookingService>();
@@ -23,6 +24,16 @@ namespace ParkingSpaces.Configuration
             // background service
             builder.Services.AddHostedService<BookingCleanupService>();
             builder.Services.AddScoped<IScopedProcessingService, DefaultScopedProcessingService>();
+
+            // fixing circular dependencies in .NET Core
+            builder.Services.AddLazyResolution();
+        }
+
+        public static IServiceCollection AddLazyResolution(this IServiceCollection services)
+        {
+            return services.AddTransient(
+                typeof(Lazy<>),
+                typeof(LazilyResolved<>));
         }
     }
 }

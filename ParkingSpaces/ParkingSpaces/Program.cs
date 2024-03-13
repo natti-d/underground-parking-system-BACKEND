@@ -22,15 +22,14 @@ builder.Services.AddAuthentication("BasicAuthentication")
     .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
 // all services
-var dependencies = new Dependencies();
-dependencies.DefineDependencies(builder);
+Dependencies.DefineDependencies(builder);
 
 // cors
 builder.Services.AddCors(o => o.AddPolicy("CorsPolicy", builder => {
     builder
-    .AllowAnyOrigin();
-    //.AllowAnyMethod()
-    //.AllowAnyHeader()
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader();
     //.WithOrigins("http://localhost:5501", "http://localhost:7106");
 }));
 

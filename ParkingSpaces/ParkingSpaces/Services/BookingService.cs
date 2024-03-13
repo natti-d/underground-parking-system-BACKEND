@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using System.Security.Claims;
 using ParkingSpaces.Models.Response;
+using System;
 
 namespace ParkingSpaces.Services
 {
@@ -13,23 +14,22 @@ namespace ParkingSpaces.Services
     {
         private readonly IBookingRepository _bookingRepository;
         private readonly IUserRepository _userRepository;
-        //private readonly IParkSpaceService _parkSpaceService;
+        private readonly Lazy<IParkSpaceService> _parkSpaceService;
 
         public BookingService(
             IBookingRepository bookingRepository,
-            IUserRepository userRepository)
-            //IParkSpaceService parkSpaceService)
+            IUserRepository userRepository,
+            Lazy<IParkSpaceService> parkSpaceService)
         {
             _userRepository = userRepository;
             _bookingRepository = bookingRepository;
-            //_parkSpaceService = parkSpaceService;
+            _parkSpaceService = parkSpaceService;
         }
 
         public virtual async Task Create(BookingRequest request, int userId)
         {
             User user = await _userRepository.FindById(userId);
 
-            // this will never be hit
             if (user == null)
             {
                 throw new Exception("Incorrect credentials!");
@@ -48,11 +48,12 @@ namespace ParkingSpaces.Services
             }
 
             // validate the startTime is valid time
-            if (request.StartTime < DateTime.UtcNow)
+            DateTime curr = request.StartTime.ToUniversalTime();
+            if (request.StartTime.ToUniversalTime() < DateTime.UtcNow)
             {
                 throw new Exception("Incorrect start date!");
             }
-
+                
             Expression<Func<Booking, bool>> expression = booking => booking.ParkSpace.Id == request.ParkSpaceId
                 && ((booking.StartTime <= request.StartTime && booking.EndTime >= request.StartTime) // if StartTime is in the range of already inserted
                     || (booking.StartTime <= request.StartTime + request.Duration && booking.EndTime >= request.StartTime + request.Duration)); // if StartTime + duration is in the range of already inserted
@@ -151,7 +152,6 @@ namespace ParkingSpaces.Services
         {
             User user = await _userRepository.FindById(userId);
 
-            // this will never be hit
             if (user == null)
             {
                 throw new Exception("Incorrect credentials!");
@@ -178,24 +178,29 @@ namespace ParkingSpaces.Services
             return activeBookingsResponse;
         }
 
-        //public virtual async Task<BookingResponse> GetById(int bookingId)
-        //{
-        //    Booking booking = await _bookingRepository
-        //        .FindById(bookingId);
+        public virtual async Task<BookingResponse> GetById(int bookingId)
+        {
+            Booking booking = await _bookingRepository
+                .FindById(bookingId);
 
-        //    ParkSpaceResponse parkSpace = await _parkSpaceService
-        //        .GetById(booking.ParkSpaceId);
+            if (booking == null)
+            {
+                throw new Exception("Booking not presented!");
+            }
 
-        //    return new BookingResponse()
-        //    {
-        //        BookingId = booking.Id,
-        //        ParkSpaceId = booking.ParkSpaceId,
-        //        ParkSpaceName = parkSpace.Name,
-        //        Duration = booking.Duration,
-        //        StartTime = booking.StartTime,
-        //        EndTime = booking.EndTime,
-        //    };
-        //}
+            ParkSpaceResponse parkSpace = await _parkSpaceService.Value
+                .GetById(booking.ParkSpaceId);
+
+            return new BookingResponse()
+            {
+                BookingId = booking.Id,
+                ParkSpaceId = booking.ParkSpaceId,
+                ParkSpaceName = parkSpace.Name,
+                Duration = booking.Duration,
+                StartTime = booking.StartTime,
+                EndTime = booking.EndTime,
+            };
+        }
 
         public virtual async Task<IQueryable<BookingResponse>> GetAllActive()
         {
@@ -266,6 +271,7 @@ namespace ParkingSpaces.Services
             return available;
         }
 
+        // background process
         public virtual async Task DeleteOldBookings(int days)
         {
             Expression<Func<Booking, bool>> expression = booking =>

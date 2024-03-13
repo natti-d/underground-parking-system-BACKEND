@@ -83,18 +83,19 @@ namespace ParkingSpaces.Controllers
             }
         }
 
-        //[HttpGet]
-        //[Route("{bookingId}")]
-        //public virtual async Task<ActionResult<BookingResponse>> GetById(int bookingId)
-        //{
-        //    try
-        //    {
-        //        return Ok(await _bookingService.GetById(bookingId));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
+
+        [HttpGet]
+        [Route("{bookingId}")]
+        public virtual async Task<ActionResult<BookingResponse>> GetById(int bookingId)
+        {
+            try
+            {
+                return Ok(await _bookingService.GetById(bookingId));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
