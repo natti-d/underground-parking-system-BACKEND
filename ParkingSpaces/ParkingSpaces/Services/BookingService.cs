@@ -4,9 +4,7 @@ using ParkingSpaces.Models.Request;
 using ParkingSpaces.Repository.Repository_Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
-using System.Security.Claims;
 using ParkingSpaces.Models.Response;
-using System;
 
 namespace ParkingSpaces.Services
 {
@@ -54,30 +52,38 @@ namespace ParkingSpaces.Services
                 throw new Exception("Incorrect start date!");
             }
                 
-            Expression<Func<Booking, bool>> expression = booking => booking.ParkSpace.Id == request.ParkSpaceId
-                && ((booking.StartTime <= request.StartTime && booking.EndTime >= request.StartTime) // if StartTime is in the range of already inserted
+            Expression<Func<Booking, bool>> expression = booking => 
+                    ((booking.StartTime <= request.StartTime && booking.EndTime >= request.StartTime) // if StartTime is in the range of already inserted
                     || (booking.StartTime <= request.StartTime + request.Duration && booking.EndTime >= request.StartTime + request.Duration)); // if StartTime + duration is in the range of already inserted
 
-            Booking presentedBooking = _bookingRepository
+            Booking presentedBooking = await _bookingRepository
                 .FindByCriteria(expression)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync(b => b.ParkSpace.Id == request.ParkSpaceId);
 
             if (presentedBooking != null)
             {
                 throw new Exception("Already reserved");
             }
-            else
+
+            // prevent one user to reserve all available park spaces
+            Booking reservedBooking = await _bookingRepository
+                .FindByCriteria(expression)
+                .FirstOrDefaultAsync(b => b.UserId == userId);
+            
+            if (reservedBooking != null)
             {
-                Booking newBooking = new Booking();
-
-                newBooking.ParkSpaceId = request.ParkSpaceId;
-                newBooking.Duration = request.Duration;
-                newBooking.StartTime = request.StartTime;
-                newBooking.EndTime = request.StartTime + request.Duration;
-                newBooking.UserId = user.Id;
-
-                await _bookingRepository.Create(newBooking);
+                throw new Exception("Oops! It seems you're already booked for a park space. Only one reservation at a time, please.");
             }
+
+            Booking newBooking = new Booking();
+
+            newBooking.ParkSpaceId = request.ParkSpaceId;
+            newBooking.Duration = request.Duration;
+            newBooking.StartTime = request.StartTime;
+            newBooking.EndTime = request.StartTime + request.Duration;
+            newBooking.UserId = user.Id;
+
+            await _bookingRepository.Create(newBooking);
         }
 
         public virtual async Task Delete(BookingDelete request)
