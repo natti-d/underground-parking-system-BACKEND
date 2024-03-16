@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ParkingSpaces.Models.DB;
 using ParkingSpaces.Models.NewFolder;
 using ParkingSpaces.Models.Request;
 using ParkingSpaces.Services;
@@ -76,6 +77,25 @@ namespace ParkingSpaces.Controllers
             {
                 // the await keyword make this method async
                 return Ok(await _bookingService.GetActiveForUser(userId));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("getAll/{page}")]
+        // here the count param is optional and by default is 5
+        public virtual async Task<ActionResult<IEnumerable<BookingResponse>>> GetAll(int page, int count = 5)
+        {
+            int userId = int.Parse(User.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
+                .Value);
+
+            try
+            {
+                return Ok(await _bookingService.GetAll(userId, page, count));
             }
             catch (Exception ex)
             {

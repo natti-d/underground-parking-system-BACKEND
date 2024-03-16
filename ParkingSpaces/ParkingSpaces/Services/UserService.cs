@@ -12,21 +12,31 @@ namespace ParkingSpaces.Services
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IPasswordHasherService _passwordHasherService;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(
+            IUserRepository userRepository,
+            IPasswordHasherService passwordHasherService)
         {
             _userRepository = userRepository;
+            _passwordHasherService = passwordHasherService;
         }
 
         public virtual async Task Login(UserLogin request)
         {
             Expression<Func<User, bool>> expression = user => 
-                user.Username == request.Username
-            && user.Password == request.Password;
+                user.Username == request.Username;
 
             User user = _userRepository
                 .FindByCriteria(expression)
                 .FirstOrDefault();
+
+            bool isTheSame = _passwordHasherService.Verify(user.Password, request.Password);
+
+            if (!isTheSame)
+            {
+                throw new Exception("There is no user with these credentials!");
+            }
 
             if (user == null)
             {
@@ -36,35 +46,35 @@ namespace ParkingSpaces.Services
 
         public virtual async Task Register(UserRequest request)
         {
-            if (request.Plate == string.Empty)
-            {
-                throw new Exception("Type your plate!");
-            }
-            if (request.Username.Length < 3 || request.Username.Length > 30)
-            {
-                throw new Exception("Username length");
-            }
+            //if (request.Plate == string.Empty)
+            //{
+            //    throw new Exception("Type your plate!");
+            //}
+            //if (request.Username.Length < 3 || request.Username.Length > 30)
+            //{
+            //    throw new Exception("Username length");
+            //}
 
-            if (request.Password.Length > 30 || request.Password.Length < 8)
-            {
-                throw new Exception("Password length");
-            }
+            //if (request.Password.Length > 30 || request.Password.Length < 8)
+            //{
+            //    throw new Exception("Password length");
+            //}
 
-            if (request.FirstName.Length > 30 || request.FirstName.Length < 2)
-            {
-                throw new Exception("Firstname length");
-            }
+            //if (request.FirstName.Length > 30 || request.FirstName.Length < 2)
+            //{
+            //    throw new Exception("Firstname length");
+            //}
 
-            if (request.LastName.Length > 30 || request.LastName.Length < 2)
-            {
-                throw new Exception("Lastname length");
-            }
+            //if (request.LastName.Length > 30 || request.LastName.Length < 2)
+            //{
+            //    throw new Exception("Lastname length");
+            //}
 
-            bool emailvalidation = IsValidEmail(request.Email);
-            if (!emailvalidation)
-            {
-                throw new Exception("Invalid email!");
-            }
+            //bool emailvalidation = IsValidEmail(request.Email);
+            //if (!emailvalidation)
+            //{
+            //    throw new Exception("Invalid email!");
+            //}
 
             Expression<Func<User, bool>> usernameExpression = user =>
                 user.Username == request.Username;
@@ -84,12 +94,15 @@ namespace ParkingSpaces.Services
             if (emailPresented)
             {
                 throw new Exception("This Email is already taken!");
-            }   
+            }
+
+            // 69
+            string passwordHash = _passwordHasherService.Hash(request.Password);
 
             User user = new User();
             user.Username = request.Username;
             user.Email = request.Email;
-            user.Password = request.Password;
+            user.Password = passwordHash;
             user.FirstName = request.FirstName;
             user.LastName = request.LastName;
             user.Plate = request.Plate;

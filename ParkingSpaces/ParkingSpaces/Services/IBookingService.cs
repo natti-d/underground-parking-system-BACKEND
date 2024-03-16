@@ -17,7 +17,7 @@ namespace ParkingSpaces.Services
 
         public Task<IEnumerable<BookingResponse>> GetActiveForUser(int userId);
 
-        public Task<IQueryable<BookingResponse>> GetAllActive();
+        public Task<IEnumerable<BookingResponse>> GetAll(int userId, int page, int count);
         public Task<IQueryable<BookingResponse>> GetActiveForNow();
 
         public Task<IQueryable<BookingResponse>> GetAvailableByFilter(ParkSpaceGetAvailableByFilter request);

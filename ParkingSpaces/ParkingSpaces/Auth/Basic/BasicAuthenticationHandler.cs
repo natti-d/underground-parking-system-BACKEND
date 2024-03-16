@@ -13,16 +13,19 @@ namespace ParkingSpaces.Authentication.Basic
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
         private readonly IUserRepository _userRepository;
+        private readonly IPasswordHasherService _passwordHasherService;
 
         public BasicAuthenticationHandler(
             IUserRepository userRepository,
+            IPasswordHasherService passwordHasherService,
             IOptionsMonitor<AuthenticationSchemeOptions> options,
             ILoggerFactory logger,
             UrlEncoder encoder,
             ISystemClock clock) 
             : base(options, logger, encoder, clock)
-        {
+        {  
             _userRepository = userRepository;
+            _passwordHasherService = passwordHasherService;
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -67,8 +70,7 @@ namespace ParkingSpaces.Authentication.Basic
             // anylize the code direct in the sql language
 
             Expression<Func<User, bool>> expression = user =>
-                user.Username == username
-                && user.Password == password;
+                user.Username == username;
 
             User user = _userRepository
                 .FindByCriteria(expression)
@@ -79,8 +81,14 @@ namespace ParkingSpaces.Authentication.Basic
                 return AuthenticateResult.Fail("Unauthorized");
             }
 
+            bool isTheSame = _passwordHasherService.Verify(user.Password, password);
+
+            if (!isTheSame) 
+            {
+                return AuthenticateResult.Fail("Unauthorized");
+            }
+
             // claim: the attributes for this user (type, value)
-            // 
             var claims = new[] { new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()) };
 
             var identity = new ClaimsIdentity(claims, "Basic");

@@ -208,27 +208,25 @@ namespace ParkingSpaces.Services
             };
         }
 
-        public virtual async Task<IQueryable<BookingResponse>> GetAllActive()
+        public virtual async Task<IEnumerable<BookingResponse>> GetAll(int userId, int page, int count)
         {
-            Expression<Func<Booking, bool>> findAvailableExpression = booking =>
-                ((booking.StartTime <= DateTime.UtcNow && booking.EndTime >= DateTime.UtcNow)
-                || booking.StartTime >= DateTime.UtcNow);
+            List<BookingResponse> bookings = _bookingRepository
+                .FindByCriteria(b => b.User.Id == userId)
+                .OrderByDescending(b => b.EndTime)
+                .Skip((page - 1) * count)
+                .Take(count)
+                .Select(b => new BookingResponse()
+                {
+                    BookingId = b.Id,
+                    Duration = b.Duration,
+                    StartTime = b.StartTime,
+                    EndTime = b.EndTime,
+                    ParkSpaceId = b.ParkSpaceId,
+                    ParkSpaceName = b.ParkSpace.Name
+                })
+                .ToList();
 
-            var activeBookings = _bookingRepository
-                .FindByCriteria(findAvailableExpression)
-                .Include(b => b.ParkSpace);
-
-            var activeBookingsResponse = activeBookings.Select(booking => new BookingResponse
-            {
-                BookingId = booking.Id,
-                ParkSpaceId = booking.ParkSpaceId,
-                ParkSpaceName = booking.ParkSpace.Name,
-                Duration = booking.Duration,
-                StartTime = booking.StartTime,
-                EndTime = booking.EndTime,
-            });
-
-            return activeBookingsResponse;
+            return bookings;
         }
 
         // return all active bookings only for now!

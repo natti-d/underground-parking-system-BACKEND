@@ -15,6 +15,7 @@ namespace ParkingSpaces.Configuration
             builder.Services.AddScoped<IBookingService, BookingService>();
             builder.Services.AddScoped<IParkSpaceService, ParkSpaceService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
 
             // repositories
             builder.Services.AddScoped<IBookingRepository, BookingRepository>();
