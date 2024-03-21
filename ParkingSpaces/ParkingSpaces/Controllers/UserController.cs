@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ParkingSpaces.Models.DB;
 using ParkingSpaces.Models.Request;
 using ParkingSpaces.Models.Response;
 using ParkingSpaces.Services;
 using System.ComponentModel;
+using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using System.Security.Claims;
 using System.Text;
@@ -26,12 +29,12 @@ namespace ParkingSpaces.Controllers
 
         [HttpPost]
         [Route("login")]
-        public virtual async Task<IActionResult> Login(UserLogin request)
+        public virtual async Task<ActionResult<string>> Login(UserLogin request)
         {
             try
             {
-                await _userService.Login(request);
-                return Ok();
+                string token = await _userService.Login(request);
+                return Ok(token);
             }
             catch (Exception ex)
             {
@@ -58,13 +61,9 @@ namespace ParkingSpaces.Controllers
         [HttpDelete]
         public virtual async Task<IActionResult> Delete()
         {
-            int userId = int.Parse(User.Claims
-                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                .Value);
-
             try
             {
-                await _userService.Delete(userId);
+                await _userService.Delete(User);
                 return Ok();
             }
             catch (Exception ex)
@@ -78,13 +77,9 @@ namespace ParkingSpaces.Controllers
 
         public virtual async Task<IActionResult> Update(UserRequest request)
         {
-            int userId = int.Parse(User.Claims
-                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                .Value);
-
             try
             {
-                await _userService.Update(request, userId);
+                await _userService.Update(request, User);
                 return Ok();
             }
             catch (Exception ex)
@@ -94,16 +89,28 @@ namespace ParkingSpaces.Controllers
         }
 
         [Authorize]
-        [HttpGet]
+        [HttpGet]   
         public virtual async Task<ActionResult<UserGetInfo>> GetInfo()
         {
-            int userId = int.Parse(User.Claims
-                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                .Value);
-
             try
             {
-                return Ok(await _userService.GetInfo(userId));
+                return Ok(await _userService.GetInfo(User));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Authorize]
+        [HttpPost]
+        [Route("setUpPhoto")]
+        public virtual async Task<ActionResult> SetUpAvatar(IFormFile file)
+        {
+            try
+            {
+                await _userService.SetUpAvatar(User, file);
+                return Ok();
             }
             catch (Exception ex)
             {

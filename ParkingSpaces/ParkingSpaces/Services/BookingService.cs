@@ -5,6 +5,8 @@ using ParkingSpaces.Repository.Repository_Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 using ParkingSpaces.Models.Response;
+using System.Security.Claims;
+using ParkingSpaces.Auth.Jwt;
 
 namespace ParkingSpaces.Services
 {
@@ -13,19 +15,23 @@ namespace ParkingSpaces.Services
         private readonly IBookingRepository _bookingRepository;
         private readonly IUserRepository _userRepository;
         private readonly Lazy<IParkSpaceService> _parkSpaceService;
+        private readonly IJwtService _jwtService;
 
         public BookingService(
             IBookingRepository bookingRepository,
             IUserRepository userRepository,
-            Lazy<IParkSpaceService> parkSpaceService)
+            Lazy<IParkSpaceService> parkSpaceService,
+            IJwtService jwtService)
         {
             _userRepository = userRepository;
             _bookingRepository = bookingRepository;
             _parkSpaceService = parkSpaceService;
+            _jwtService = jwtService;
         }
 
-        public virtual async Task Create(BookingRequest request, int userId)
+        public virtual async Task Create(BookingRequest request, ClaimsPrincipal userRequest)
         {
+            int userId = _jwtService.GetUserIdFromToken(userRequest);
             User user = await _userRepository.FindById(userId);
 
             if (user == null)
@@ -154,8 +160,9 @@ namespace ParkingSpaces.Services
             }
         }
 
-        public virtual async Task<IEnumerable<BookingResponse>> GetActiveForUser(int userId)
+        public virtual async Task<IEnumerable<BookingResponse>> GetActiveForUser(ClaimsPrincipal userRequest)
         {
+            int userId = _jwtService.GetUserIdFromToken(userRequest);
             User user = await _userRepository.FindById(userId);
 
             if (user == null)
@@ -208,8 +215,15 @@ namespace ParkingSpaces.Services
             };
         }
 
-        public virtual async Task<IEnumerable<BookingResponse>> GetAll(int userId, int page, int count)
+        public virtual async Task<IEnumerable<BookingResponse>> GetAll(ClaimsPrincipal userRequest, int page, int count)
         {
+            int userId = _jwtService.GetUserIdFromToken(userRequest);
+
+            if (userId == 0)
+            {
+                throw new Exception("Zero id");
+            }
+
             List<BookingResponse> bookings = _bookingRepository
                 .FindByCriteria(b => b.User.Id == userId)
                 .OrderByDescending(b => b.EndTime)

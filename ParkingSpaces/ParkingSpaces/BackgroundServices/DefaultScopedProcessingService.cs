@@ -14,7 +14,7 @@ namespace ParkingSpaces.BackgroundServices
         }
 
         public async Task DoWorkAsync(CancellationToken stoppingToken)
-        {
+        {   
             while (!stoppingToken.IsCancellationRequested)
             {
                 // Implement logic to delete bookings older than 1 days

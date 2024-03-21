@@ -23,13 +23,9 @@ namespace ParkingSpaces.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> Create(BookingRequest request)
         {
-            int userId = int.Parse(User.Claims
-                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                .Value);
-
             try
             {
-                await _bookingService.Create(request, userId);
+                await _bookingService.Create(request, User);
                 return Ok();
             }
             catch (Exception ex)
@@ -69,14 +65,10 @@ namespace ParkingSpaces.Controllers
         [HttpGet]
         public virtual async Task<ActionResult<IEnumerable<BookingResponse>>> GetActiveForUser()
         {
-            int userId = int.Parse(User.Claims
-                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                .Value);
-
             try
             {
                 // the await keyword make this method async
-                return Ok(await _bookingService.GetActiveForUser(userId));
+                return Ok(await _bookingService.GetActiveForUser(User));
             }
             catch (Exception ex)
             {
@@ -89,13 +81,9 @@ namespace ParkingSpaces.Controllers
         // here the count param is optional and by default is 5
         public virtual async Task<ActionResult<IEnumerable<BookingResponse>>> GetAll(int page, int count = 5)
         {
-            int userId = int.Parse(User.Claims
-                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)
-                .Value);
-
             try
             {
-                return Ok(await _bookingService.GetAll(userId, page, count));
+                return Ok(await _bookingService.GetAll(User, page, count));
             }
             catch (Exception ex)
             {

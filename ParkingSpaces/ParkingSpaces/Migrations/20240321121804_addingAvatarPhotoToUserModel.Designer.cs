@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ParkingSpaces;
 
@@ -11,9 +12,10 @@ using ParkingSpaces;
 namespace ParkingSpaces.Migrations
 {
     [DbContext(typeof(ParkingSpacesDbContext))]
-    partial class ParkingSpacesDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240321121804_addingAvatarPhotoToUserModel")]
+    partial class addingAvatarPhotoToUserModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,6 +169,7 @@ namespace ParkingSpaces.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<byte[]>("Avatar")
+                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Email")

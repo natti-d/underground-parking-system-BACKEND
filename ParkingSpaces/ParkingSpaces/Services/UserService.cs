@@ -1,28 +1,38 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ParkingSpaces.Auth.Jwt;
 using ParkingSpaces.Models.DB;
 using ParkingSpaces.Models.Request;
 using ParkingSpaces.Models.Response;
 using ParkingSpaces.Repository.Repository_Interfaces;
 using ParkingSpaces.Repository.Repository_Models;
+using System.IO.Compression;
 using System.Linq.Expressions;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
+using System.Web.Http.ModelBinding;
 
 namespace ParkingSpaces.Services
 {
     public class UserService : IUserService
     {
+        private readonly IJwtService _jwtService;
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasherService _passwordHasherService;
+        private readonly IConfiguration _configuration;
 
-        public UserService(
+        public UserService( 
             IUserRepository userRepository,
-            IPasswordHasherService passwordHasherService)
+            IPasswordHasherService passwordHasherService,
+            IJwtService jwtService,
+            IConfiguration configuration)
         {
+            _jwtService = jwtService;
             _userRepository = userRepository;
             _passwordHasherService = passwordHasherService;
+            _configuration = configuration;
         }
 
-        public virtual async Task Login(UserLogin request)
+        public virtual async Task<string> Login(UserLogin request)
         {
             Expression<Func<User, bool>> expression = user => 
                 user.Username == request.Username;
@@ -31,17 +41,19 @@ namespace ParkingSpaces.Services
                 .FindByCriteria(expression)
                 .FirstOrDefault();
 
-            bool isTheSame = _passwordHasherService.Verify(user.Password, request.Password);
+            if (user == null)
+            {
+                throw new Exception("There is no user with these credentials!");
+            }
 
+            bool isTheSame = _passwordHasherService.Verify(user.Password, request.Password);
             if (!isTheSame)
             {
                 throw new Exception("There is no user with these credentials!");
             }
 
-            if (user == null)
-            {
-                throw new Exception("There is no user with these credentials!");
-            }
+            string token = _jwtService.Generate(user.Id);
+            return token;
         }
 
         public virtual async Task Register(UserRequest request)
@@ -96,7 +108,6 @@ namespace ParkingSpaces.Services
                 throw new Exception("This Email is already taken!");
             }
 
-            // 69
             string passwordHash = _passwordHasherService.Hash(request.Password);
 
             User user = new User();
@@ -110,9 +121,15 @@ namespace ParkingSpaces.Services
             await _userRepository.Create(user);
         }
 
-        public virtual async Task Delete(int userId)
+        public virtual async Task Delete(ClaimsPrincipal userRequest)
         {
+            int userId = _jwtService.GetUserIdFromToken(userRequest);
             User user = await _userRepository.FindById(userId);
+
+            if (user == null)
+            {
+                throw new Exception("Not presented.");
+            }
 
             if (user == null) 
             {
@@ -122,7 +139,7 @@ namespace ParkingSpaces.Services
             await _userRepository.Delete(user);
         }
 
-        public virtual async Task Update(UserRequest request, int userId)
+        public virtual async Task Update(UserRequest request, ClaimsPrincipal user)
         {
             bool emailvalidation = IsValidEmail(request.Email);
             if (!emailvalidation)
@@ -150,7 +167,14 @@ namespace ParkingSpaces.Services
                 throw new Exception("Lastname length");
             }
 
+            int userId = _jwtService.GetUserIdFromToken(user);
+
             User userForUpdate = await _userRepository.FindById(userId);
+
+            if (userForUpdate == null)
+            {
+                throw new Exception("Not presented.");
+            }         
 
             Expression<Func<User, bool>> usernameExpression = user =>
                 user.Username == request.Username
@@ -184,9 +208,15 @@ namespace ParkingSpaces.Services
             await _userRepository.Update(userForUpdate);
         }
 
-        public virtual async Task<UserGetInfo> GetInfo(int userId)
+        public virtual async Task<UserGetInfo> GetInfo(ClaimsPrincipal userRequest)
         {
+            int userId = _jwtService.GetUserIdFromToken(userRequest);
             User user = await _userRepository.FindById(userId);
+
+            if (user == null)
+            {
+                throw new Exception("Not presented.");
+            }
 
             return new UserGetInfo()
             {
@@ -194,8 +224,32 @@ namespace ParkingSpaces.Services
                 Plate = user.Plate,
                 Email = user.Email,
                 FirstName = user.FirstName,
-                LastName = user.LastName
+                LastName = user.LastName,
+                Avatar = user.Avatar
             };
+        }
+
+        public virtual async Task SetUpAvatar(ClaimsPrincipal userRequest, IFormFile file)
+        {
+            int userId = _jwtService.GetUserIdFromToken(userRequest);
+            User user = await _userRepository.FindById(userId);
+
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.CopyToAsync(memoryStream);
+
+                // Upload the file if less than 2 MB
+                long fileSizeLimit = _configuration.GetValue<long>("FileSizeLimit");
+                if (memoryStream.Length < fileSizeLimit)
+                {
+                    user.Avatar = memoryStream.ToArray();
+                    await _userRepository.SaveChanges();
+                }
+                else
+                {
+                    throw new Exception("file size need to be less than 2 MB");
+                }
+            }
         }
 
         private bool IsValidEmail(string email)

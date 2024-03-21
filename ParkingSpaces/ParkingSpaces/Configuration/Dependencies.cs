@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using ParkingSpaces.Auth.Jwt;
 using ParkingSpaces.BackgroundServices;
 using ParkingSpaces.Repository.Repository_Interfaces;
 using ParkingSpaces.Repository.Repository_Models;
@@ -16,6 +17,7 @@ namespace ParkingSpaces.Configuration
             builder.Services.AddScoped<IParkSpaceService, ParkSpaceService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
+            builder.Services.AddScoped<IJwtService, JwtService>();
 
             // repositories
             builder.Services.AddScoped<IBookingRepository, BookingRepository>();
