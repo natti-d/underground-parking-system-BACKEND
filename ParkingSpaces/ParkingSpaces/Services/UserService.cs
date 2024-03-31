@@ -32,7 +32,8 @@ namespace ParkingSpaces.Services
             _configuration = configuration;
         }
 
-        public virtual async Task<string> Login(UserLogin request)
+        // can be virtual (mock to be able to override it!)
+        public async Task<string> Login(UserLogin request)
         {
             Expression<Func<User, bool>> expression = user => 
                 user.Username == request.Username;
@@ -56,37 +57,37 @@ namespace ParkingSpaces.Services
             return token;
         }
 
-        public virtual async Task Register(UserRequest request)
+        public async Task Register(UserRequest request)
         {
-            //if (request.Plate == string.Empty)
-            //{
-            //    throw new Exception("Type your plate!");
-            //}
-            //if (request.Username.Length < 3 || request.Username.Length > 30)
-            //{
-            //    throw new Exception("Username length");
-            //}
+            if (request.Plate == string.Empty)
+            {
+                throw new Exception("Type your plate!");
+            }
+            if (request.Username.Length < 3 || request.Username.Length > 30)
+            {
+                throw new Exception("Username length");
+            }
 
-            //if (request.Password.Length > 30 || request.Password.Length < 8)
-            //{
-            //    throw new Exception("Password length");
-            //}
+            if (request.Password.Length > 30 || request.Password.Length < 8)
+            {
+                throw new Exception("Password length");
+            }
 
-            //if (request.FirstName.Length > 30 || request.FirstName.Length < 2)
-            //{
-            //    throw new Exception("Firstname length");
-            //}
+            if (request.FirstName.Length > 30 || request.FirstName.Length < 2)
+            {
+                throw new Exception("Firstname length");
+            }
 
-            //if (request.LastName.Length > 30 || request.LastName.Length < 2)
-            //{
-            //    throw new Exception("Lastname length");
-            //}
+            if (request.LastName.Length > 30 || request.LastName.Length < 2)
+            {
+                throw new Exception("Lastname length");
+            }
 
-            //bool emailvalidation = IsValidEmail(request.Email);
-            //if (!emailvalidation)
-            //{
-            //    throw new Exception("Invalid email!");
-            //}
+            bool emailvalidation = IsValidEmail(request.Email);
+            if (!emailvalidation)
+            {
+                throw new Exception("Invalid email!");
+            }
 
             Expression<Func<User, bool>> usernameExpression = user =>
                 user.Username == request.Username;
@@ -121,7 +122,7 @@ namespace ParkingSpaces.Services
             await _userRepository.Create(user);
         }
 
-        public virtual async Task Delete(ClaimsPrincipal userRequest)
+        public async Task Delete(ClaimsPrincipal userRequest)
         {
             int userId = _jwtService.GetUserIdFromToken(userRequest);
             User user = await _userRepository.FindById(userId);
@@ -139,7 +140,7 @@ namespace ParkingSpaces.Services
             await _userRepository.Delete(user);
         }
 
-        public virtual async Task Update(UserRequest request, ClaimsPrincipal user)
+        public async Task Update(UserRequest request, ClaimsPrincipal user)
         {
             bool emailvalidation = IsValidEmail(request.Email);
             if (!emailvalidation)
@@ -208,10 +209,10 @@ namespace ParkingSpaces.Services
             await _userRepository.Update(userForUpdate);
         }
 
-        public virtual async Task<UserGetInfo> GetInfo(ClaimsPrincipal userRequest)
+        public async Task<UserGetInfo> GetInfo(ClaimsPrincipal userRequest)
         {
             int userId = _jwtService.GetUserIdFromToken(userRequest);
-            User user = await _userRepository.FindById(userId);
+                User user = await _userRepository.FindById(userId);
 
             if (user == null)
             {
@@ -229,7 +230,7 @@ namespace ParkingSpaces.Services
             };
         }
 
-        public virtual async Task SetUpAvatar(ClaimsPrincipal userRequest, IFormFile file)
+        public async Task SetUpAvatar(ClaimsPrincipal userRequest, IFormFile file)
         {
             int userId = _jwtService.GetUserIdFromToken(userRequest);
             User user = await _userRepository.FindById(userId);
