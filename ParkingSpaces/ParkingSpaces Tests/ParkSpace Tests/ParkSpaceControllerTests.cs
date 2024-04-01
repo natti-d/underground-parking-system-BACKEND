@@ -18,26 +18,15 @@ namespace ParkingSpaces_Tests.ParkSpace_Tests
 {
     internal class ParkSpaceControllerTests
     {
-        private Mock<ParkSpaceService> mockParkSpaceService;
-        private Mock<IParkSpaceRepository> mockParkSpaceRepository;
+        private Mock<IParkSpaceService> mockParkSpaceService;
         private ParkSpaceController parkSpaceController;
-
-        private Mock<BookingService> mockBookingService;
-        private Mock<IBookingRepository> mockBookingRepository;
-        private Mock<IUserRepository> mockUserRepository;
 
         IEnumerable<ParkSpaceResponse> available;
 
         [SetUp]
         public void Setup()
         {
-            mockBookingRepository = new Mock<IBookingRepository>();
-            mockUserRepository = new Mock<IUserRepository>();
-            mockBookingService = new Mock<BookingService>(mockBookingRepository.Object, mockUserRepository.Object);
-
-            mockParkSpaceRepository = new Mock<IParkSpaceRepository>();
-            mockParkSpaceService = new Mock<ParkSpaceService>(mockParkSpaceRepository.Object, mockBookingService.Object);
-
+            mockParkSpaceService = new Mock<IParkSpaceService>();
             parkSpaceController = new ParkSpaceController(mockParkSpaceService.Object);
 
             ParkSpaceResponse p1 = new ParkSpaceResponse();
@@ -51,9 +40,12 @@ namespace ParkingSpaces_Tests.ParkSpace_Tests
                 p3
             };
 
+            p1.Name = "diff";
+            p2.Name = "diff";
+
             mockParkSpaceService.Setup(mock => mock.GetAvailable()).Returns(Task.FromResult(available)).Verifiable();
             mockParkSpaceService.Setup(mock => mock.GetAvailableByFilter(It.IsAny<ParkSpaceGetAvailableByFilter>()))
-                .Returns(Task.FromResult(available))
+                .Returns(Task.FromResult(available.Where(a => a.Name == "diff")))
                 .Verifiable();
         }
 
@@ -77,7 +69,7 @@ namespace ParkingSpaces_Tests.ParkSpace_Tests
         public async Task GetAvailableByFilter_ShouldReturnAvailableByFilter()
         {
             int expectedStatusCode = 200;
-            int expectedCount = 3;
+            int expectedCount = 2;
 
             ActionResult<IEnumerable<ParkSpaceResponse>> result = await parkSpaceController.GetAvailableByFilter(It.IsAny<ParkSpaceGetAvailableByFilter>());
             OkObjectResult okResult = result.Result as OkObjectResult;
@@ -85,6 +77,7 @@ namespace ParkingSpaces_Tests.ParkSpace_Tests
 
             // verify that the component is called
             mockParkSpaceService.Verify(mock => mock.GetAvailableByFilter(It.IsAny<ParkSpaceGetAvailableByFilter>()));
+            
             Assert.AreEqual(okResult.StatusCode, expectedStatusCode);
             Assert.AreEqual(parkSpaceResponses.Count(), expectedCount);
         }
