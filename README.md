@@ -1,7 +1,7 @@
 # underground-parking-system-BACKEND
 
 This project is created based on the Project Definision (you can check the full assignment below).
-The main purpose is to help the employees at the [P3 company](https://www.p3-group.com/en/p3-bulgaria-is-building-an-it-community-in-gabrovo/)
+The main purpose is to help the employees at the [P3 company](https://www.p3-group.com/)
 The project is structured into two distinct sections: the dynamic and robust backend, complemented by the sleek and intuitive [frontend](https://github.com/lachezar1/Underground-parking-system-FRONTEND).
 
 ### Project Definition: Underground Parking Spaces Management System
